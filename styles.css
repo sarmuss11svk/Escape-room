@@ -1,0 +1,184 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Spoločné pre všetky stránky */
+body {
+    background: url('spaceship.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 100vh;
+    text-shadow: 2px 2px 5px #000;
+}
+
+header {
+    text-align: center;
+    padding: 50px 20px 20px 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+header h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+
+header p {
+    font-size: 1.2em;
+    max-width: 700px;
+    margin: 0 auto 40px auto;
+}
+
+/* Obrázok vesmírnej lode na hlavnej stránke */
+.ship-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.ship-image {
+    max-width: 30%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* Tlačidlá na hlavnej stránke pod sebou */
+.main-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Hlavné tlačidlá */
+.start-button, .settings-button, .back-button {
+    display: inline-block;
+    padding: 15px 40px;
+    margin: 10px;
+    background-color: #ff6b6b;
+    color: #fff;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.start-button:hover, .settings-button:hover, .back-button:hover {
+    background-color: #ff8787;
+    transform: scale(1.1);
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(0,0,0,0.5);
+    font-size: 0.9em;
+}
+
+/* Menu predmetov */
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.subject-button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background-color: #4a90e2;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.subject-button:hover {
+    background-color: #6aa8f7;
+    transform: scale(1.05);
+}
+
+/* Interaktívne otázky */
+.question-container {
+    background-color: rgba(0,0,0,0.6);
+    padding: 30px;
+    margin: 20px auto;
+    border-radius: 15px;
+    max-width: 600px;
+}
+
+.question-container .question {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.question-container .options button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    font-size: 1.1em;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.question-container .options button:hover {
+    background-color: #66bb6a;
+    transform: scale(1.02);
+}
+
+#feedback {
+    font-size: 1.3em;
+    margin-top: 15px;
+}
+
+#next-question {
+    margin-top: 20px;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background-color: #ff9800;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+#next-question:hover {
+    background-color: #ffb74d;
+    transform: scale(1.05);
+}
+
+/* Nastavenia */
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 400px;
+    margin: 0 auto 40px auto;
+}
+
+input[type="range"] {
+    width: 100%;
+}

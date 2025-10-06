@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Úlohy na Matrisii</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+body {
+    margin:0;
+    font-family:'Segoe UI', sans-serif;
+    color:#fff;
+    background:#000;
+    overflow:hidden;
+    position:relative;
+    min-height:100vh;
+}
+
+/* Header */
+header {
+    position:relative;
+    z-index:10;
+    text-align:center;
+    padding:20px;
+}
+header h1 {
+    font-size:3em;
+    margin-bottom:15px;
+    text-shadow:2px 2px 10px #000;
+}
+header p {
+    font-size:1.2em;
+    margin-bottom:40px;
+}
+
+/* Dvere / tlačidlá */
+.subject-button {
+    position:absolute;
+    width:140px;
+    height:60px;
+    background: radial-gradient(circle at top, #111, #222);
+    border: 3px solid #4af0ff;
+    border-radius: 15px;
+    color:#fff;
+    font-size:1.1em;
+    cursor:pointer;
+    text-shadow: 0 0 5px #00f0ff;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(74,240,255,0.5);
+}
+.subject-button:hover {
+    background: radial-gradient(circle at center, #00f0ff, #111);
+    transform: scale(1.1);
+    box-shadow: 0 0 40px rgba(0,255,255,0.8);
+}
+
+/* Poloha tlačidiel - fixne */
+#stx { left:10%; top:20%; }
+#sie { left:10%; top:40%; }
+#pro { left:10%; top:60%; }
+
+#zip { left:45%; top:30%; }
+#dat { left:45%; top:60%; }
+
+#extra1 { left:80%; top:20%; }
+#extra2 { left:80%; top:40%; }
+#extra3 { left:80%; top:60%; }
+
+/* Späť tlačidlo */
+.back-button {
+    position:fixed;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:12px 30px;
+    border-radius:10px;
+    background-color:#ff6b6b;
+    color:#fff;
+    text-decoration:none;
+    transition: all 0.3s ease;
+}
+.back-button:hover {
+    background-color:#ff8787;
+    transform:translateX(-50%) scale(1.05);
+}
+
+/* Hviezdy */
+.star {
+    position:absolute;
+    width:1px;
+    height:1px;
+    background:white;
+    opacity:0.7;
+    border-radius:50%;
+    animation: twinkle linear infinite;
+}
+@keyframes twinkle {
+    0%,100% {opacity:0.1;}
+    50% {opacity:0.9;}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Úlohy na Matrisii</h1>
+<p>Vyber si predmet, z ktorého chceš odpovedať otázky:</p>
+</header>
+
+<!-- Tlačidlá dvere -->
+<button id="stx" onclick="location.href='questions_stx.html'" class="subject-button">STX</button>
+<button id="sie" onclick="location.href='questions_sie.html'" class="subject-button">SIE</button>
+<button id="pro" onclick="location.href='questions_pro.html'" class="subject-button">PRO</button>
+<button id="zip" onclick="location.href='questions_zip.html'" class="subject-button">ZIP</button>
+<button id="dat" onclick="location.href='questions_dat.html'" class="subject-button">DAT</button>
+
+<!-- Príklad extra portálov, ak budeš mať viac predmetov -->
+<button id="extra1" class="subject-button">X1</button>
+<button id="extra2" class="subject-button">X2</button>
+<button id="extra3" class="subject-button">X3</button>
+
+<a href="index.html" class="back-button">Späť</a>
+
+<script>
+// Generovanie hviezd
+const numStars = 120;
+for(let i=0;i<numStars;i++){
+    const star = document.createElement('div');
+    star.classList.add('star');
+    star.style.left = Math.random()*100+'vw';
+    star.style.top = Math.random()*100+'vh';
+    star.style.width = star.style.height = Math.random()*2+'px';
+    star.style.animationDuration = (Math.random()*5+3)+'s';
+    star.style.animationDelay = Math.random()*5+'s';
+    document.body.appendChild(star);
+}
+</script>
+</body>
+</html>

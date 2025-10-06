@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Úloha SIE – Zapoj elektrický obvod</title>
+<style>
+body {
+  background: radial-gradient(circle at center, #020202 0%, #000 100%);
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  overflow-x: hidden;
+  min-height: 100vh;
+  margin: 0;
+}
+header h1 {
+  font-size: 2em;
+  text-shadow: 0 0 20px #00f0ff;
+  margin-top: 20px;
+}
+header p {
+  font-size: 1.1em;
+  opacity: 0.85;
+}
+.schema {
+  position: relative;
+  margin: 50px auto;
+  width: 700px;
+  height: 300px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 15px;
+  border: 2px solid #0ff3;
+  box-shadow: 0 0 20px #00f5ff30;
+}
+.dropzone {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #0ff5;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s;
+}
+.dropzone.highlight {
+  border-color: #0ff;
+  background: rgba(0,255,255,0.1);
+}
+.wire {
+  position: absolute;
+  height: 4px;
+  background: linear-gradient(90deg, #0ff, #00f, #0ff);
+  opacity: 0.4;
+}
+#led-light {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #050 30%, #010);
+  top: 120px;
+  left: 590px;
+  box-shadow: 0 0 10px #000;
+  transition: all 0.5s;
+}
+#led-light.on {
+  background: radial-gradient(circle, #0f0 20%, #030);
+  box-shadow: 0 0 30px #0f0;
+  animation: blink 1s infinite alternate;
+}
+@keyframes blink {
+  0% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+.components-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+.component {
+  width: 90px;
+  height: 90px;
+  cursor: grab;
+  transition: transform 0.3s;
+}
+.component img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 10px #00f0ff);
+}
+.component:hover { transform: scale(1.1); }
+#next-btn {
+  display: none;
+  margin-top: 30px;
+  padding: 12px 35px;
+  background: #0f0;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1em;
+  cursor: pointer;
+}
+#next-btn:hover { background: #6f6; }
+.back-button {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff6b6b;
+  padding: 12px 25px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: white;
+}
+.back-button:hover { background: #ff8787; }
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  opacity: 0.7;
+  border-radius: 50%;
+  animation: twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,100% { opacity:0.1; } 50% { opacity:0.9; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>⚙️ Úloha SIE – Zapoj elektrický obvod</h1>
+<p>Potiahni komponenty z dolnej lišty do správnych slotov na schéme. Nesprávne položky sa resetujú.</p>
+</header>
+
+<div class="schema" id="schema">
+  <!-- vodiče -->
+  <div class="wire" style="top:50px; left:50px; width:580px;"></div>
+  <div class="wire" style="top:200px; left:50px; width:580px;"></div>
+  <div class="wire" style="top:50px; left:630px; height:150px; width:4px;"></div>
+
+  <!-- dropzóny -->
+  <div class="dropzone" style="top:40px; left:40px;" data-slot="battery"></div>
+  <div class="dropzone" style="top:40px; left:240px;" data-slot="switch"></div>
+  <div class="dropzone" style="top:40px; left:440px;" data-slot="resistor"></div>
+  <div class="dropzone" style="top:180px; left:630px;" data-slot="led"></div>
+  <div class="dropzone" style="top:180px; left:40px;" data-slot="ground"></div>
+
+  <div id="led-light"></div>
+</div>
+
+<div class="components-container">
+  <div class="component" draggable="true" data-type="battery">
+    <img src="https://static.vecteezy.com/system/resources/previews/035/043/865/non_2x/battery-icon-design-template-simple-and-clean-vector.jpg" alt="Batéria">
+  </div>
+  <div class="component" draggable="true" data-type="switch">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmz-iET_7gVeGUwUtRyVntXXQe6pAqRx_VYA&s" alt="Vypínač">
+  </div>
+  <div class="component" draggable="true" data-type="resistor">
+    <img src="https://static.vecteezy.com/system/resources/previews/025/747/525/non_2x/carbon-film-resistor-and-symbol-fixed-resistor-electronic-component-vector.jpg" alt="Rezistor">
+  </div>
+  <div class="component" draggable="true" data-type="led">
+    <img src="https://media.rs-online.com/R1278393-01.jpg" alt="LED">
+  </div>
+  <div class="component" draggable="true" data-type="ground">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRS_FYUo930clGoXGbz4wOJp-okAl7SSMYXw&s" alt="Ground">
+  </div>
+</div>
+
+<button id="next-btn" onclick="location.href='success.html'">Ďalej</button>
+<a href="questions_menu.html" class="back-button">Späť</a>
+
+<audio id="connect-sound" src="https://freesound.org/data/previews/82/82501_1079976-lq.mp3"></audio>
+<audio id="power-sound" src="https://freesound.org/data/previews/66/66263_931655-lq.mp3"></audio>
+
+<script>
+for(let i=0;i<100;i++){
+  const s=document.createElement('div');
+  s.classList.add('star');
+  s.style.left=Math.random()*100+'vw';
+  s.style.top=Math.random()*100+'vh';
+  s.style.animationDelay=Math.random()*5+'s';
+  document.body.appendChild(s);
+}
+
+const components=document.querySelectorAll('.component');
+const dropzones=document.querySelectorAll('.dropzone');
+const led=document.getElementById('led-light');
+let placed={};
+
+components.forEach(c=>{
+  c.addEventListener('dragstart', e=>{
+    e.dataTransfer.setData('type', c.dataset.type);
+  });
+});
+
+dropzones.forEach(z=>{
+  z.addEventListener('dragover', e=>{
+    e.preventDefault();
+    z.classList.add('highlight');
+  });
+  z.addEventListener('dragleave', ()=> z.classList.remove('highlight'));
+  z.addEventListener('drop', e=>{
+    e.preventDefault();
+    z.classList.remove('highlight');
+    const type=e.dataTransfer.getData('type');
+    // ak uz je obsadeny, reset
+    if(z.hasChildNodes()){
+      alert("Tento slot je už obsadený!");
+      return;
+    }
+    // kontrola správnosti podľa slotu
+    if(z.dataset.slot===type){
+      z.innerHTML=`<img src="${getImageURL(type)}" alt="${type}" width="70">`;
+      placed[type]=true;
+      document.getElementById('connect-sound').play();
+      checkCircuit();
+    } else {
+      alert("Nesprávne! Skús znova.");
+    }
+  });
+});
+
+function getImageURL(type){
+  const urls={
+    battery:"https://static.vecteezy.com/system/resources/previews/035/043/865/non_2x/battery-icon-design-template-simple-and-clean-vector.jpg",
+    switch:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmz-iET_7gVeGUwUtRyVntXXQe6pAqRx_VYA&s",
+    resistor:"https://static.vecteezy.com/system/resources/previews/025/747/525/non_2x/carbon-film-resistor-and-symbol-fixed-resistor-electronic-component-vector.jpg",
+    led:"https://media.rs-online.com/R1278393-01.jpg",
+    ground:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRS_FYUo930clGoXGbz4wOJp-okAl7SSMYXw&s"
+  };
+  return urls[type];
+}
+
+function checkCircuit(){
+  if(placed.battery && placed.switch && placed.resistor && placed.led && placed.ground){
+    document.querySelectorAll('.wire').forEach(w=>{
+      w.style.opacity=1;
+      w.style.animation="currentFlow 1s linear infinite";
+    });
+    led.classList.add('on');
+    document.getElementById('power-sound').play();
+    document.getElementById('next-btn').style.display='inline-block';
+  }
+}
+</script>
+</body>
+</html>

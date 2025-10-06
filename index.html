@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape Room - Matrisia</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Reset a základ */
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Segoe UI', sans-serif;
+    overflow:hidden;
+    background:#000;
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    text-align:center;
+}
+
+/* Header */
+header {
+    z-index:10;
+    position:relative;
+}
+header h1 {
+    font-size:3em;
+    margin-bottom:20px;
+    text-shadow:2px 2px 8px #000;
+}
+header p {
+    font-size:1.1em;
+    max-width:700px;
+    margin:0 auto 30px auto;
+}
+.ship-container {
+    margin-bottom:30px;
+}
+.ship-image {
+    width:300px;
+    max-width:80%;
+    border-radius:15px;
+    box-shadow:0 0 20px rgba(255,255,255,0.5);
+}
+
+/* Tlačidlá */
+.main-buttons {
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    z-index:10;
+}
+.start-button, .settings-button {
+    display:inline-block;
+    padding:15px 40px;
+    font-size:1.3em;
+    color:#fff;
+    text-decoration:none;
+    background-color:#ff6b6b;
+    border-radius:10px;
+    transition:all 0.3s ease;
+}
+.start-button:hover, .settings-button:hover {
+    background-color:#ff8787;
+    transform:scale(1.05);
+}
+
+/* Footer */
+footer {
+    position:absolute;
+    bottom:5px;
+    font-size:0.7em;
+    text-align:center;
+    z-index:10;
+}
+
+/* Meteory – rôzne veľkosti a rýchlosti */
+.meteor {
+    position:absolute;
+    width:2px;
+    height:15px;
+    background: linear-gradient(45deg, #fff, #ccc);
+    opacity:0.8;
+    border-radius:50%;
+    transform: rotate(45deg);
+    animation: fall linear infinite;
+}
+@keyframes fall {
+    0% { transform: translateY(-50px) rotate(45deg); opacity:1; }
+    100% { transform: translateY(110vh) rotate(45deg); opacity:0; }
+}
+
+/* Hlbší efekt – hviezdy */
+.star {
+    position:absolute;
+    width:1px;
+    height:1px;
+    background:white;
+    opacity:0.6;
+    border-radius:50%;
+    animation: twinkle linear infinite;
+}
+@keyframes twinkle {
+    0%,100% { opacity:0.1; }
+    50% { opacity:0.8; }
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Escape Room: Matrisia</h1>
+<p>Naša loď Matrisia sa pokazila vo vesmíre a my musíme bezpečne doraziť na Zem 2.0 – planétu Oretria. Rieš interaktívne úlohy z rôznych predmetov a dostaň sa späť domov.</p>
+<div class="ship-container">
+    <img src="https://i.pinimg.com/736x/19/c7/91/19c7919a7db729fe057988c3afa2577b.jpg" alt="Vesmírna loď Matrisia" class="ship-image">
+</div>
+<div class="main-buttons">
+    <a href="questions_menu.html" class="start-button">Štart</a>
+    <a href="settings.html" class="settings-button">Nastavenia</a>
+</div>
+</header>
+
+<footer>
+Samuel Novák & Daniela Hredzaková - Riešitelia<br>
+Stredná odborná škola elektrotechnická, Prešov
+</footer>
+
+<script>
+// Generovanie meteorov
+const numMeteors = 50;
+for(let i=0;i<numMeteors;i++){
+    const meteor = document.createElement('div');
+    meteor.classList.add('meteor');
+    meteor.style.left = Math.random()*100+'vw';
+    meteor.style.width = (Math.random()*3+1)+'px';
+    meteor.style.height = (Math.random()*15+5)+'px';
+    meteor.style.animationDuration = (Math.random()*3+1)+'s';
+    meteor.style.animationDelay = Math.random()*5+'s';
+    document.body.appendChild(meteor);
+}
+
+// Generovanie hviezd
+const numStars = 100;
+for(let i=0;i<numStars;i++){
+    const star = document.createElement('div');
+    star.classList.add('star');
+    star.style.left = Math.random()*100+'vw';
+    star.style.top = Math.random()*100+'vh';
+    star.style.width = Math.random()*2+'px';
+    star.style.height = star.style.width;
+    star.style.animationDuration = (Math.random()*5+3)+'s';
+    star.style.animationDelay = Math.random()*5+'s';
+    document.body.appendChild(star);
+}
+</script>
+</body>
+</html>

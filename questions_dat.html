@@ -1,90 +1,101 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Úloha DAT – Pexeso</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            background: radial-gradient(circle at center, #020024, #090979, #00d4ff);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            text-align: center;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Úloha DAT – Pexeso</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: url('https://i.pinimg.com/originals/19/c7/91/19c7919a7db729fe057988c3afa2577b.jpg') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        color: white;
+        text-align: center;
+    }
 
-        header {
-            margin-top: 30px;
-        }
+    header {
+        margin-top: 30px;
+        background-color: rgba(0,0,0,0.6);
+        padding: 20px 30px;
+        border-radius: 15px;
+    }
 
-        .board-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-top: 40px;
-        }
+    .board-wrapper {
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+        flex-wrap: wrap;
+        margin-top: 40px;
+    }
 
-        .board {
-            display: grid;
-            grid-template-columns: repeat(4, 80px);
-            grid-gap: 10px;
-        }
+    .board {
+        display: grid;
+        grid-template-columns: repeat(4, 100px);
+        grid-template-rows: repeat(2, 100px);
+        grid-gap: 15px;
+        background-color: rgba(0,0,0,0.4);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
 
-        .card {
-            width: 80px;
-            height: 80px;
-            background-color: #1e1e2f;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: transform 0.3s, background-color 0.3s;
-            box-shadow: 0 0 8px rgba(255,255,255,0.2);
-        }
+    .card {
+        width: 100px;
+        height: 100px;
+        background-color: #1e1e2f;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 8px rgba(255,255,255,0.2);
+    }
 
-        .card.flipped {
-            background-color: #4caf50;
-            color: #fff;
-        }
+    .card.flipped {
+        background-color: #4caf50;
+        color: #fff;
+    }
 
-        .card.matched {
-            background-color: #00d4ff;
-            color: #fff;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
-        }
+    .card.matched {
+        background-color: #00d4ff;
+        color: #fff;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+    }
 
-        .back-button {
-            margin-top: 40px;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            background-color: #ff6b6b;
-            color: white;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
+    #score {
+        margin-top: 30px;
+        font-size: 1.3em;
+        background-color: rgba(0,0,0,0.5);
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
 
-        .back-button:hover {
-            background-color: #ff8787;
-            transform: scale(1.05);
-        }
+    .back-button {
+        margin-top: 30px;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 10px;
+        background-color: #ff6b6b;
+        color: #fff;
+        font-size: 1em;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
 
-        #score {
-            margin-top: 20px;
-            font-size: 1.1em;
-        }
-    </style>
+    .back-button:hover {
+        background-color: #ff8787;
+        transform: scale(1.05);
+    }
+</style>
 </head>
 <body>
 <header>
@@ -98,91 +109,83 @@
 </div>
 
 <div id="score">Nájdené páry: 0 / 8</div>
-
 <a href="questions_menu.html" class="back-button">⬅ Späť na otázky</a>
 
 <script>
-    const leftBoard = document.getElementById("board-left");
-    const rightBoard = document.getElementById("board-right");
-    const scoreText = document.getElementById("score");
+const leftBoard = document.getElementById("board-left");
+const rightBoard = document.getElementById("board-right");
+const scoreText = document.getElementById("score");
 
-    // 8 párov
-    const pairs = [
-        ["SQL", "dotazovací jazyk"],
-        ["MySQL", "relačná databáza"],
-        ["MongoDB", "dokumentová DB"],
-        ["PHP", "serverový jazyk"],
-        ["HTML", "značkovací jazyk"],
-        ["CSS", "štýlovací jazyk"],
-        ["Server", "poskytuje dáta"],
-        ["Client", "žiadateľ o dáta"]
-    ];
+// 8 párov
+const pairs = [
+    ["SQL", "dotazovací jazyk"],
+    ["MySQL", "relačná databáza"],
+    ["MongoDB", "dokumentová DB"],
+    ["PHP", "serverový jazyk"],
+    ["HTML", "značkovací jazyk"],
+    ["CSS", "štýlovací jazyk"],
+    ["Server", "poskytuje dáta"],
+    ["Client", "žiadateľ o dáta"]
+];
 
-    // spojiť otázky + odpovede
-    let cards = [];
-    pairs.forEach(([q, a]) => {
-        cards.push({ text: q, pair: a });
-        cards.push({ text: a, pair: q });
+// Spojiť otázky + odpovede
+let cards = [];
+pairs.forEach(([q, a]) => {
+    cards.push({ text: q, pair: a });
+    cards.push({ text: a, pair: q });
+});
+
+// Zamiešanie kariet
+cards.sort(() => 0.5 - Math.random());
+
+// Rozdelenie do 2 tabúľ (8 vľavo, 8 vpravo)
+const leftCards = cards.slice(0, 8);
+const rightCards = cards.slice(8, 16);
+
+let flippedCards = [];
+let matchedCount = 0;
+
+function createBoard(boardElement, boardCards) {
+    boardCards.forEach(cardData => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.value = cardData.text;
+        card.dataset.pair = cardData.pair;
+        card.innerHTML = "?";
+        card.addEventListener("click", () => flipCard(card));
+        boardElement.appendChild(card);
     });
+}
 
-    // zamiešanie
-    cards.sort(() => 0.5 - Math.random());
+function flipCard(card) {
+    if (card.classList.contains("matched") || card.classList.contains("flipped")) return;
 
-    // rozdelenie do 2 tabúľ (8 vľavo, 8 vpravo)
-    const leftCards = cards.slice(0, 8);
-    const rightCards = cards.slice(8, 16);
+    card.classList.add("flipped");
+    card.innerHTML = card.dataset.value;
 
-    let flippedCards = [];
-    let matchedCount = 0;
+    flippedCards.push(card);
 
-    function createBoard(boardElement, boardCards) {
-        boardCards.forEach(cardData => {
-            const card = document.createElement("div");
-            card.classList.add("card");
-            card.dataset.value = cardData.text;
-            card.dataset.pair = cardData.pair;
-            card.innerHTML = "?";
-            card.addEventListener("click", () => flipCard(card));
-            boardElement.appendChild(card);
-        });
+    if (flippedCards.length === 2) {
+        checkMatch(flippedCards[0], flippedCards[1]);
+        flippedCards = [];
     }
+}
 
-    function flipCard(card) {
-        if (card.classList.contains("flipped") || card.classList.contains("matched")) return;
-        if (flippedCards.length === 2) return;
-
-        card.classList.add("flipped");
-        card.innerHTML = card.dataset.value;
-        flippedCards.push(card);
-
-        if (flippedCards.length === 2) checkMatch();
-    }
-
-    function checkMatch() {
-        const [first, second] = flippedCards;
-        if (first.dataset.value === second.dataset.pair) {
-            first.classList.add("matched");
-            second.classList.add("matched");
-            matchedCount++;
-            scoreText.textContent = `Nájdené páry: ${matchedCount} / 8`;
-            flippedCards = [];
-
-            if (matchedCount === 8) {
-                setTimeout(() => alert("🎉 Výborne! Našiel si všetky páry!"), 600);
-            }
-        } else {
-            setTimeout(() => {
-                first.classList.remove("flipped");
-                second.classList.remove("flipped");
-                first.innerHTML = "?";
-                second.innerHTML = "?";
-                flippedCards = [];
-            }, 900);
+function checkMatch(card1, card2) {
+    if (card1.dataset.value === card2.dataset.pair) {
+        card1.classList.add("matched");
+        card2.classList.add("matched");
+        matchedCount++;
+        scoreText.textContent = `Nájdené páry: ${matchedCount} / 8`;
+        if (matchedCount === 8) {
+            setTimeout(() => alert("🎉 Výborne! Našiel si všetky páry!"), 200);
         }
     }
+    // Nesprávne páry zostanú odkryté, nič sa nerobí
+}
 
-    createBoard(leftBoard, leftCards);
-    createBoard(rightBoard, rightCards);
+createBoard(leftBoard, leftCards);
+createBoard(rightBoard, rightCards);
 </script>
 </body>
 </html>

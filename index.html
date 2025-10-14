@@ -4,123 +4,60 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Escape Room - Matrisia</title>
-<link rel="stylesheet" href="styles.css">
 <style>
-/* Reset a základ */
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-    font-family: 'Segoe UI', sans-serif;
-    overflow:hidden;
-    background:#000;
-    color:#fff;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    text-align:center;
-}
-
-/* Header */
-header {
-    z-index:10;
-    position:relative;
-}
-header h1 {
-    font-size:3em;
-    margin-bottom:20px;
-    text-shadow:2px 2px 8px #000;
-}
-header p {
-    font-size:1.1em;
-    max-width:700px;
-    margin:0 auto 30px auto;
-}
-.ship-container {
-    margin-bottom:30px;
-}
-.ship-image {
-    width:300px;
-    max-width:80%;
-    border-radius:15px;
-    box-shadow:0 0 20px rgba(255,255,255,0.5);
-}
-
-/* Tlačidlá */
-.main-buttons {
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-    z-index:10;
-}
-.start-button, .settings-button {
-    display:inline-block;
-    padding:15px 40px;
-    font-size:1.3em;
-    color:#fff;
-    text-decoration:none;
-    background-color:#ff6b6b;
-    border-radius:10px;
-    transition:all 0.3s ease;
-}
-.start-button:hover, .settings-button:hover {
-    background-color:#ff8787;
-    transform:scale(1.05);
-}
-
-/* Footer */
-footer {
-    position:absolute;
-    bottom:5px;
-    font-size:0.7em;
-    text-align:center;
-    z-index:10;
-}
-
-/* Meteory – rôzne veľkosti a rýchlosti */
-.meteor {
-    position:absolute;
-    width:2px;
-    height:15px;
-    background: linear-gradient(45deg, #fff, #ccc);
-    opacity:0.8;
-    border-radius:50%;
-    transform: rotate(45deg);
-    animation: fall linear infinite;
-}
-@keyframes fall {
-    0% { transform: translateY(-50px) rotate(45deg); opacity:1; }
-    100% { transform: translateY(110vh) rotate(45deg); opacity:0; }
-}
-
-/* Hlbší efekt – hviezdy */
-.star {
-    position:absolute;
-    width:1px;
-    height:1px;
-    background:white;
-    opacity:0.6;
-    border-radius:50%;
-    animation: twinkle linear infinite;
-}
-@keyframes twinkle {
-    0%,100% { opacity:0.1; }
-    50% { opacity:0.8; }
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background:#000;color:#fff;min-height:100vh;overflow:hidden;text-align:center;}
+canvas#space{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;}
+header{position:relative;z-index:5;padding:50px 20px 20px 20px;background-color:rgba(0,0,0,0.5);}
+header h1{font-size:3em;margin-bottom:20px;text-shadow:2px 2px 8px #000;}
+header p{font-size:1.2em;max-width:700px;margin:0 auto 40px auto;}
+.ship-container{display:flex;justify-content:center;margin-bottom:30px;}
+.ship-image{max-width:30%;height:auto;border-radius:15px;box-shadow:0 0 20px rgba(255,255,255,0.5);animation:float 4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
+.main-buttons{display:flex;justify-content:center;gap:20px;}
+.start-button{padding:12px 30px;font-size:1.1em;border-radius:12px;background:linear-gradient(135deg,#ff6b6b,#ff8787);box-shadow:0 5px 15px rgba(255,107,107,0.4);color:#fff;text-decoration:none;transition:all 0.3s ease;}
+.start-button:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(255,107,107,0.6);}
+footer{position:relative;z-index:5;text-align:center;padding:20px;background-color:rgba(0,0,0,0.5);font-size:0.9em;}
+.sidebar{position:fixed;top:0;left:-280px;width:280px;height:100%;background-color:rgba(20,20,30,0.95);color:#fff;padding:20px;box-shadow:4px 0 15px rgba(0,0,0,0.7);transition:left 0.3s ease;z-index:100;overflow-y:auto;border-right:2px solid #ff6b6b;}
+.sidebar.active{left:0;}
+.sidebar-header{text-align:center;margin-bottom:20px;}
+.sidebar-header span{font-size:1.5em;font-weight:bold;}
+.sidebar-content h3{margin-top:20px;margin-bottom:10px;}
+.sidebar-content input[type="range"]{width:100%;margin-bottom:15px;padding:8px;border-radius:8px;border:none;}
+.sidebar-toggle{position:fixed;top:20px;left:20px;background-color:#ff6b6b;border:none;color:#fff;font-size:1.5em;padding:10px 12px;border-radius:50%;cursor:pointer;z-index:110;transition:all 0.3s ease;}
+.sidebar-toggle:hover{background-color:#ff8787;transform:scale(1.2);}
 </style>
 </head>
 <body>
+
+<canvas id="space"></canvas>
+
 <header>
 <h1>Escape Room: Matrisia</h1>
-<p>Naša loď Matrisia sa pokazila vo vesmíre a my musíme bezpečne doraziť na Zem 2.0 – planétu Oretria. Rieš interaktívne úlohy z rôznych predmetov a dostaň sa späť domov.</p>
+<p>Naša loď Matrisia sa pokazila vo vesmíre a my musíme bezpečne doraziť na Zem 2.0 – planétu Oretria. Rieš úlohy a dostaň sa späť domov.</p>
 <div class="ship-container">
-    <img src="https://i.pinimg.com/736x/19/c7/91/19c7919a7db729fe057988c3afa2577b.jpg" alt="Vesmírna loď Matrisia" class="ship-image">
+<img src="https://i.pinimg.com/736x/19/c7/91/19c7919a7db729fe057988c3afa2577b.jpg" alt="Vesmírna loď Matrisia" class="ship-image">
 </div>
 <div class="main-buttons">
-    <a href="questions_menu.html" class="start-button">Štart</a>
-    <a href="settings.html" class="settings-button">Nastavenia</a>
+<a href="questions_menu.html" class="start-button">Štart</a>
 </div>
 </header>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <span>Nastavenia</span>
+    </div>
+    <div class="sidebar-content">
+        <h3>Zvukové nastavenia</h3>
+        <label for="music-volume">Hudba:</label>
+        <input type="range" id="music-volume" min="0" max="100" value="50">
+        <label for="effects-volume">Efekty:</label>
+        <input type="range" id="effects-volume" min="0" max="100" value="50">
+    </div>
+</div>
+
+<button id="openSidebar" class="sidebar-toggle">⚙️</button>
 
 <footer>
 Samuel Novák & Daniela Hredzaková - Riešitelia<br>
@@ -128,32 +65,30 @@ Stredná odborná škola elektrotechnická, Prešov
 </footer>
 
 <script>
-// Generovanie meteorov
-const numMeteors = 50;
-for(let i=0;i<numMeteors;i++){
-    const meteor = document.createElement('div');
-    meteor.classList.add('meteor');
-    meteor.style.left = Math.random()*100+'vw';
-    meteor.style.width = (Math.random()*3+1)+'px';
-    meteor.style.height = (Math.random()*15+5)+'px';
-    meteor.style.animationDuration = (Math.random()*3+1)+'s';
-    meteor.style.animationDelay = Math.random()*5+'s';
-    document.body.appendChild(meteor);
-}
+// Sidebar toggle
+const sidebar=document.getElementById('sidebar');
+const toggleBtn=document.getElementById('openSidebar');
+toggleBtn.addEventListener('click',()=>{sidebar.classList.toggle('active');});
 
-// Generovanie hviezd
-const numStars = 100;
-for(let i=0;i<numStars;i++){
-    const star = document.createElement('div');
-    star.classList.add('star');
-    star.style.left = Math.random()*100+'vw';
-    star.style.top = Math.random()*100+'vh';
-    star.style.width = Math.random()*2+'px';
-    star.style.height = star.style.width;
-    star.style.animationDuration = (Math.random()*5+3)+'s';
-    star.style.animationDelay = Math.random()*5+'s';
-    document.body.appendChild(star);
-}
+// Space animácia
+const canvas=document.getElementById("space");
+const ctx=canvas.getContext("2d");
+let W=canvas.width=innerWidth,H=canvas.height=innerHeight,time=0;
+function rand(a,b){return a+Math.random()*(b-a);}
+const stars=[],planets=[],asteroids=[];
+const shipImg=new Image();shipImg.src="https://toppng.com/uploads/preview/spaceship-png-11552949252oedlxwxhur.png";
+const ship={x:rand(0,W),y:rand(0,H),vx:rand(-0.5,0.5),vy:rand(-0.3,0.3),ang:rand(0,Math.PI*2),rotSpd:rand(-0.0015,0.0015),drift:0};
+
+function createStars(n=300){for(let i=0;i<n;i++){stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.2,spd:rand(0.1,0.5)});}}
+function createPlanets(){planets.push({x:W*0.3,y:H*0.6,r:80,colorA:'#2563eb',colorB:'#1e3a8a',ang:0,spd:0.0002});planets.push({x:W*0.7,y:H*0.4,r:50,colorA:'#f97316',colorB:'#92400e',ang:Math.PI/2,spd:-0.0003});}
+function createAsteroids(n=60){for(let i=0;i<n;i++){asteroids.push({x:rand(0,W),y:rand(0,H),r:rand(1,3),spd:rand(0.2,1.2),dir:rand(-0.02,0.02)});}}
+function drawStars(){for(const s of stars){s.y+=s.spd;if(s.y>H){s.y=0;s.x=Math.random()*W;}ctx.beginPath();ctx.fillStyle="white";ctx.globalAlpha=0.8;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}}
+function drawPlanets(){for(const p of planets){p.ang+=p.spd;const x=p.x+Math.cos(p.ang)*10,y=p.y+Math.sin(p.ang)*6;const grad=ctx.createRadialGradient(x,y,p.r*0.2,x,y,p.r);grad.addColorStop(0,p.colorA);grad.addColorStop(1,p.colorB);ctx.beginPath();ctx.arc(x,y,p.r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();}}
+function drawAsteroids(){for(const a of asteroids){a.x+=a.dir*10;a.y+=a.spd;if(a.y>H){a.y=0;a.x=Math.random()*W;}if(a.x<0)a.x=W;if(a.x>W)a.x=0;ctx.beginPath();ctx.fillStyle="rgba(150,130,110,0.8)";ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fill();}}
+function drawShip(){ship.x+=ship.vx;ship.y+=ship.vy;ship.ang+=ship.rotSpd;ship.drift=Math.sin(time*0.003)*0.05;if(ship.x<-200)ship.x=W+200;if(ship.x>W+200)ship.x=-200;if(ship.y<-200)ship.y=H+200;if(ship.y>H+200)ship.y=-200;ctx.save();ctx.translate(ship.x,ship.y);ctx.rotate(ship.ang+ship.drift);ctx.globalAlpha=Math.random()>0.96?0.6:1;ctx.drawImage(shipImg,-60,-30,120,60);ctx.globalAlpha=1;ctx.restore();}
+function loop(t){time=t;ctx.clearRect(0,0,W,H);const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#010409");bg.addColorStop(1,"#020617");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);drawStars();drawPlanets();drawAsteroids();if(shipImg.complete){drawShip();}requestAnimationFrame(loop);}
+createStars(300);createPlanets();createAsteroids(60);requestAnimationFrame(loop);
+window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
 </script>
 </body>
 </html>

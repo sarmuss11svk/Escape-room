@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prihlásenie správcu</title>
+<style>
+body{background:linear-gradient(135deg,#010409,#020617);color:#fff;font-family:'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;text-align:center;}
+.login-container{background-color:rgba(20,20,30,0.95);padding:30px 40px;border-radius:15px;box-shadow:0 0 20px rgba(0,0,0,0.7);width:300px;}
+h1{margin-bottom:20px;}
+input[type="text"],input[type="password"]{width:100%;padding:10px;margin:12px 0;border-radius:8px;border:none;}
+button{width:100%;padding:12px;margin-top:15px;border-radius:8px;border:none;background-color:#ff6b6b;color:#fff;font-size:1em;cursor:pointer;transition:all 0.3s ease;}
+button:hover{background-color:#ff8787;transform:scale(1.05);}
+</style>
+</head>
+<body>
+<div class="login-container">
+<h1>Správca</h1>
+<input type="text" id="admin-name" placeholder="Meno">
+<input type="password" id="admin-pass" placeholder="Heslo">
+<button id="admin-login">Prihlásiť</button>
+</div>
+
+<script>
+document.getElementById('admin-login').addEventListener('click',()=>{
+    const name=document.getElementById('admin-name').value;
+    const pass=document.getElementById('admin-pass').value;
+    if(name==="admin" && pass==="1234"){
+        alert("Prihlásenie úspešné!");
+        window.location.href="admin-panel.html"; 
+    }else{
+        alert("Neplatné meno alebo heslo!");
+    }
+});
+</script>
+</body>
+</html>

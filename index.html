@@ -48,6 +48,7 @@ footer{position:relative;z-index:5;text-align:center;padding:20px;background-col
     <div class="sidebar-header">
         <span>Nastavenia</span>
     </div>
+    
     <div class="sidebar-content">
         <h3>Zvukové nastavenia</h3>
         <label for="music-volume">Hudba:</label>
@@ -55,6 +56,25 @@ footer{position:relative;z-index:5;text-align:center;padding:20px;background-col
         <label for="effects-volume">Efekty:</label>
         <input type="range" id="effects-volume" min="0" max="100" value="50">
     </div>
+    <div class="sidebar-content">
+  <h3>Prihlásenie správcu</h3>
+  <input type="text" id="admin-name" placeholder="Meno">
+  <input type="password" id="admin-pass" placeholder="Heslo">
+  <button id="admin-login">Prihlásiť</button>
+</div>
+<script>
+  document.getElementById('admin-login').addEventListener('click', function() {
+    const name = document.getElementById('admin-name').value;
+    const pass = document.getElementById('admin-pass').value;
+    if (name === 'spravca' && pass === 'Password') {
+      alert('Prihlásenie úspešné!');
+      window.location.href = 'admin-panel.html';
+    } else {
+      alert('Neplatné meno alebo heslo!');
+    }
+  });
+</script>
+
 </div>
 
 <button id="openSidebar" class="sidebar-toggle">⚙️</button>

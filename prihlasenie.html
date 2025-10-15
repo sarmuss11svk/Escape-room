@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Správca úloh – Matrisia</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:#000;
+    color:#fff;
+    font-family:'Segoe UI',sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:40px 20px;
+    background:radial-gradient(circle at 20% 20%,#111 0%,#000 70%);
+    overflow-x:hidden;
+  }
+
+  h1{
+    font-size:2rem;
+    margin-bottom:24px;
+    letter-spacing:2px;
+    text-shadow:0 0 10px #fff;
+  }
+
+  .admin-panel{
+    width:100%;
+    max-width:850px;
+    background:rgba(10,10,10,0.9);
+    border:1px solid rgba(255,255,255,0.3);
+    border-radius:16px;
+    box-shadow:0 0 20px rgba(255,255,255,0.25);
+    padding:24px 32px;
+    position:relative;
+    animation:float 7s ease-in-out infinite alternate;
+  }
+
+  @keyframes float{
+    0%{transform:translateY(0) scale(1);}
+    50%{transform:translateY(-4px) scale(1.01);}
+    100%{transform:translateY(0) scale(1);}
+  }
+
+  label{
+    display:block;
+    margin-top:14px;
+    font-weight:bold;
+    font-size:0.95rem;
+    opacity:0.9;
+  }
+  input,textarea{
+    width:100%;
+    margin-top:6px;
+    padding:10px;
+    background:#0b0b0b;
+    border:1px solid #555;
+    border-radius:8px;
+    color:#fff;
+    font-size:1rem;
+    resize:vertical;
+  }
+  textarea{min-height:100px;}
+  button{
+    margin-top:18px;
+    background:linear-gradient(135deg,#75aaff,#3f6dd6);
+    border:none;
+    color:#fff;
+    font-size:1rem;
+    font-weight:600;
+    padding:12px 30px;
+    border-radius:10px;
+    cursor:pointer;
+    box-shadow:0 0 14px rgba(90,140,255,0.4);
+    transition:transform .2s ease,box-shadow .2s ease;
+  }
+  button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 22px rgba(90,140,255,0.6);
+  }
+
+  hr{
+    margin:30px 0;
+    border:none;
+    border-top:1px solid rgba(255,255,255,0.2);
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+  }
+  th,td{
+    padding:10px 8px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+  }
+  th{
+    text-align:left;
+    color:#9fd3ff;
+  }
+  td code{
+    background:#111;
+    padding:2px 6px;
+    border-radius:6px;
+  }
+
+  #status{
+    margin-top:10px;
+    font-weight:600;
+    text-shadow:0 0 6px #fff;
+  }
+</style>
+</head>
+<body>
+  <h1>🧩 Správca úloh</h1>
+
+  <div class="admin-panel">
+    <h2>Pridať novú úlohu</h2>
+
+    <label for="room">Miestnosť (napr. room1)</label>
+    <input type="text" id="room" placeholder="room1">
+
+    <label for="desc">Popis úlohy</label>
+    <textarea id="desc" placeholder="Zadaj text zadania..."></textarea>
+
+    <label for="code">Kódový útržok (použi {{1}}, {{2}} ako polia na doplnenie)</label>
+    <textarea id="code" placeholder="napr. System.out.println({{1}} + {{2}});"></textarea>
+
+    <label for="answers">Správne odpovede (oddelené čiarkou)</label>
+    <input type="text" id="answers" placeholder="napr. 'a,b'">
+
+    <button id="save-task">💾 Uložiť úlohu</button>
+    <div id="status"></div>
+
+    <hr>
+
+    <h2>Existujúce úlohy</h2>
+    <table id="task-table">
+      <thead>
+        <tr><th>Miestnosť</th><th>Popis</th><th>Odpovede</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+  const tasks = JSON.parse(localStorage.getItem('matrisia_tasks') || '[]');
+  const tableBody = document.querySelector('#task-table tbody');
+  const statusEl = document.getElementById('status');
+
+  function renderTasks(){
+    tableBody.innerHTML = '';
+    tasks.forEach(t=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${t.room}</td><td>${t.desc}</td><td><code>${t.answers.join(', ')}</code></td>`;
+      tableBody.appendChild(tr);
+    });
+  }
+  renderTasks();
+
+  document.getElementById('save-task').addEventListener('click',()=>{
+    const room=document.getElementById('room').value.trim();
+    const desc=document.getElementById('desc').value.trim();
+    const code=document.getElementById('code').value.trim();
+    const answers=document.getElementById('answers').value.split(',').map(a=>a.trim()).filter(a=>a);
+
+    if(!room||!desc||!code||!answers.length){
+      statusEl.textContent='❌ Vyplň všetky polia.';
+      statusEl.style.color='#ff6666';
+      return;
+    }
+
+    const existing=tasks.find(t=>t.room===room);
+    if(existing){
+      existing.desc=desc;
+      existing.code=code;
+      existing.answers=answers;
+    }else{
+      tasks.push({room,desc,code,answers});
+    }
+    localStorage.setItem('matrisia_tasks',JSON.stringify(tasks));
+    renderTasks();
+    statusEl.textContent='✅ Úloha uložená!';
+    statusEl.style.color='#5aff9d';
+  });
+</script>
+</body>
+</html>

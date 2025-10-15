@@ -177,14 +177,14 @@
 
 
   // Načítanie otázky z PHP
-  fetch('get_room1_question.php')
+fetch('get_room1_question.php')
     .then(response => response.json())
     .then(data => {
       if(data.error){
         document.getElementById('desc').textContent = data.error;
         return;
       }
-      correctAnswers = JSON.parse(data.answer);
+      correctAnswers = data.answer; // už je pole
       document.getElementById('desc').textContent = data.description;
 
       let snippet = data.code_snippet.replace(/\{\{(\d+)\}\}/g,
@@ -194,6 +194,7 @@
     .catch(() => {
       document.getElementById('desc').textContent = 'Chyba načítania otázky.';
     });
+
 
 
   // Kontrola odpovede

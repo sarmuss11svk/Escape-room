@@ -146,64 +146,81 @@
 </style>
 </head>
 <body>
-  <div id="centerbox">
-    <h1>🚀 Miestnosť 1 – Java Úloha</h1>
-    <h3>Doplň kód, aby sa zobrazilo: "Elektrobicykel jazdí do vzdialenosti 60 km!"</h3>
-    <pre>
-class Bicykel {
-    void jazdit() {
-        System.out.println("Bicykel jazdí!");
-    }
-}
-class Elektrobicykel extends Bicykel {
-    void jazdit() {
-        System.out.println("Elektrobicykel jazdí do vzdialenosti 60 km!");
-    }
-}
-public static void main(String args[]) {
-    <input type="text" id="ans_1" class="codebox" autocomplete="off" placeholder="typ"> bicykel = new <input type="text" id="ans_2" class="codebox" autocomplete="off" placeholder="trieda">();
-    bicykel.<input type="text" id="ans_3" class="codebox" autocomplete="off" placeholder="metóda">();
-}
-    </pre>
-    <div id="result-message"></div>
-    <div class="btn-row">
-      <button id="check-answer">Skontrolovať odpoveď</button>
-      <a href="room2.html" id="next-button">Ďalej</a>
-    </div>
+
+<div id="centerbox" role="main" aria-label="Úloha miestnosť 1">
+  <h1>🚀 Miestnosť 1 – Java Úloha</h1>
+  <h3 id="desc">Načítavam otázku...</h3>
+  <pre id="code"></pre>
+
+  <div id="result-message"></div>
+
+  <div class="btn-row">
+    <button id="check-answer" aria-label="Skontrolovať odpoveď">Skontrolovať odpoveď</button>
+    <a href="room2.html" id="next-button" aria-label="Ďalšia miestnosť">Ďalej</a>
   </div>
-  <div id="timer">30:00</div>
-  <script>
-    let correctAnswers = ['Bicykel', 'Elektrobicykel', 'jazdit'];
-    let timeLeft = 30 * 60;
-    const timerEl = document.getElementById('timer');
-    const checkBtn = document.getElementById('check-answer');
-    const nextBtn = document.getElementById('next-button');
+</div>
 
-    setInterval(() => {
-      const minutes = Math.floor(timeLeft / 60);
-      const seconds = timeLeft % 60;
-      timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-      timeLeft--;
-      if (timeLeft < 0) timeLeft = 0;
-    }, 1000);
+<div id="timer">30:00</div>
 
-    checkBtn.addEventListener('click', () => {
-      const allCorrect = 
-        document.getElementById('ans_1').value.trim() === correctAnswers[0] &&
-        document.getElementById('ans_2').value.trim() === correctAnswers[1] &&
-        document.getElementById('ans_3').value.trim() === correctAnswers[2];
-      const msg = document.getElementById('result-message');
-      if (allCorrect) {
-        msg.textContent = 'Správna odpoveď!';
-        msg.className = 'success';
-        checkBtn.style.display = 'none';
-        nextBtn.style.display = 'inline-block';
-        nextBtn.focus();
-      } else {
-        msg.textContent = 'Nesprávna odpoveď, skús znova.';
-        msg.className = 'fail';
+<script>
+  let correctAnswers = [];
+  let timeLeft = 30 * 60;
+  const timerEl = document.getElementById('timer');
+
+  setInterval(() => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    timeLeft--;
+    if (timeLeft < 0) timeLeft = 0;
+  }, 1000);
+
+
+  // Načítanie otázky z PHP
+  fetch('get_room1_question.php')
+    .then(response => response.json())
+    .then(data => {
+      if(data.error){
+        document.getElementById('desc').textContent = data.error;
+        return;
       }
+      correctAnswers = JSON.parse(data.answer);
+      document.getElementById('desc').textContent = data.description;
+
+      let snippet = data.code_snippet.replace(/\{\{(\d+)\}\}/g,
+          (full, n) => `<input type="text" id="ans_${n}" class="codebox" autocomplete="off" />`);
+      document.getElementById('code').innerHTML = snippet;
+    })
+    .catch(() => {
+      document.getElementById('desc').textContent = 'Chyba načítania otázky.';
     });
-  </script>
+
+
+  // Kontrola odpovede
+  document.getElementById('check-answer').addEventListener('click', () => {
+    let allCorrect = true;
+    for(let i=0; i<correctAnswers.length; i++){
+      const val = document.getElementById(`ans_${i+1}`).value.trim();
+      if(val !== correctAnswers[i]){
+        allCorrect = false;
+        break;
+      }
+    }
+    const msg = document.getElementById('result-message');
+    const nextBtn = document.getElementById('next-button');
+    const checkBtn = document.getElementById('check-answer');
+    if(allCorrect){
+      msg.textContent = 'Správna odpoveď!';
+      msg.className = 'success';
+      checkBtn.style.display = 'none';
+      nextBtn.style.display = 'inline-block';
+      nextBtn.focus();
+    } else {
+      msg.textContent = 'Nesprávna odpoveď, skús znova.';
+      msg.className = 'fail';
+    }
+  });
+</script>
+
 </body>
 </html>

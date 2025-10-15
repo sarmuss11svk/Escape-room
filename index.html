@@ -14,7 +14,7 @@ header p{font-size:1.2em;max-width:700px;margin:0 auto 40px auto;}
 .ship-container{display:flex;justify-content:center;margin-bottom:30px;}
 .ship-image{max-width:30%;height:auto;border-radius:15px;box-shadow:0 0 20px rgba(255,255,255,0.5);animation:float 4s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
-.main-buttons{display:flex;justify-content:center;gap:20px;}
+.main-buttons{display:flex;justify-content:center;gap:20px;flex-direction:column;align-items:center;}
 .start-button{padding:12px 30px;font-size:1.1em;border-radius:12px;background:linear-gradient(135deg,#ff6b6b,#ff8787);box-shadow:0 5px 15px rgba(255,107,107,0.4);color:#fff;text-decoration:none;transition:all 0.3s ease;}
 .start-button:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(255,107,107,0.6);}
 footer{position:relative;z-index:5;text-align:center;padding:20px;background-color:rgba(0,0,0,0.5);font-size:0.9em;}
@@ -38,8 +38,12 @@ footer{position:relative;z-index:5;text-align:center;padding:20px;background-col
 <div class="ship-container">
 <img src="https://i.pinimg.com/736x/19/c7/91/19c7919a7db729fe057988c3afa2577b.jpg" alt="Vesmírna loď Matrisia" class="ship-image">
 </div>
+
 <div class="main-buttons">
-<a href="questions_menu.html" class="start-button">Štart</a>
+    <!-- Pôvodné tlačidlo -->
+    <a href="questions_menu.html" class="start-button">Štart</a>
+    <!-- Nové tlačidlo na room1.html -->
+    <a href="room1.html" class="start-button" style="background: linear-gradient(135deg,#6bff6b,#87ff87); margin-top:10px; display:inline-block;">Testovacie</a>
 </div>
 </header>
 
@@ -57,24 +61,11 @@ footer{position:relative;z-index:5;text-align:center;padding:20px;background-col
         <input type="range" id="effects-volume" min="0" max="100" value="50">
     </div>
     <div class="sidebar-content">
-  <h3>Prihlásenie správcu</h3>
-  <input type="text" id="admin-name" placeholder="Meno">
-  <input type="password" id="admin-pass" placeholder="Heslo">
-  <button id="admin-login">Prihlásiť</button>
-</div>
-<script>
-  document.getElementById('admin-login').addEventListener('click', function() {
-    const name = document.getElementById('admin-name').value;
-    const pass = document.getElementById('admin-pass').value;
-    if (name === 'spravca' && pass === 'Password') {
-      alert('Prihlásenie úspešné!');
-      window.location.href = 'admin-panel.html';
-    } else {
-      alert('Neplatné meno alebo heslo!');
-    }
-  });
-</script>
-
+        <h3>Prihlásenie správcu</h3>
+        <input type="text" id="admin-name" placeholder="Meno">
+        <input type="password" id="admin-pass" placeholder="Heslo">
+        <button id="admin-login">Prihlásiť</button>
+    </div>
 </div>
 
 <button id="openSidebar" class="sidebar-toggle">⚙️</button>
@@ -85,30 +76,43 @@ Stredná odborná škola elektrotechnická, Prešov
 </footer>
 
 <script>
-// Sidebar toggle
-const sidebar=document.getElementById('sidebar');
-const toggleBtn=document.getElementById('openSidebar');
-toggleBtn.addEventListener('click',()=>{sidebar.classList.toggle('active');});
+  // Sidebar toggle
+  const sidebar=document.getElementById('sidebar');
+  const toggleBtn=document.getElementById('openSidebar');
+  toggleBtn.addEventListener('click',()=>{sidebar.classList.toggle('active');});
 
-// Space animácia
-const canvas=document.getElementById("space");
-const ctx=canvas.getContext("2d");
-let W=canvas.width=innerWidth,H=canvas.height=innerHeight,time=0;
-function rand(a,b){return a+Math.random()*(b-a);}
-const stars=[],planets=[],asteroids=[];
-const shipImg=new Image();shipImg.src="https://toppng.com/uploads/preview/spaceship-png-11552949252oedlxwxhur.png";
-const ship={x:rand(0,W),y:rand(0,H),vx:rand(-0.5,0.5),vy:rand(-0.3,0.3),ang:rand(0,Math.PI*2),rotSpd:rand(-0.0015,0.0015),drift:0};
+  // Admin login
+  document.getElementById('admin-login').addEventListener('click', function() {
+    const name = document.getElementById('admin-name').value;
+    const pass = document.getElementById('admin-pass').value;
+    if (name === 'spravca' && pass === 'Password') {
+      alert('Prihlásenie úspešné!');
+      window.location.href = 'admin-panel.html';
+    } else {
+      alert('Neplatné meno alebo heslo!');
+    }
+  });
 
-function createStars(n=300){for(let i=0;i<n;i++){stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.2,spd:rand(0.1,0.5)});}}
-function createPlanets(){planets.push({x:W*0.3,y:H*0.6,r:80,colorA:'#2563eb',colorB:'#1e3a8a',ang:0,spd:0.0002});planets.push({x:W*0.7,y:H*0.4,r:50,colorA:'#f97316',colorB:'#92400e',ang:Math.PI/2,spd:-0.0003});}
-function createAsteroids(n=60){for(let i=0;i<n;i++){asteroids.push({x:rand(0,W),y:rand(0,H),r:rand(1,3),spd:rand(0.2,1.2),dir:rand(-0.02,0.02)});}}
-function drawStars(){for(const s of stars){s.y+=s.spd;if(s.y>H){s.y=0;s.x=Math.random()*W;}ctx.beginPath();ctx.fillStyle="white";ctx.globalAlpha=0.8;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}}
-function drawPlanets(){for(const p of planets){p.ang+=p.spd;const x=p.x+Math.cos(p.ang)*10,y=p.y+Math.sin(p.ang)*6;const grad=ctx.createRadialGradient(x,y,p.r*0.2,x,y,p.r);grad.addColorStop(0,p.colorA);grad.addColorStop(1,p.colorB);ctx.beginPath();ctx.arc(x,y,p.r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();}}
-function drawAsteroids(){for(const a of asteroids){a.x+=a.dir*10;a.y+=a.spd;if(a.y>H){a.y=0;a.x=Math.random()*W;}if(a.x<0)a.x=W;if(a.x>W)a.x=0;ctx.beginPath();ctx.fillStyle="rgba(150,130,110,0.8)";ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fill();}}
-function drawShip(){ship.x+=ship.vx;ship.y+=ship.vy;ship.ang+=ship.rotSpd;ship.drift=Math.sin(time*0.003)*0.05;if(ship.x<-200)ship.x=W+200;if(ship.x>W+200)ship.x=-200;if(ship.y<-200)ship.y=H+200;if(ship.y>H+200)ship.y=-200;ctx.save();ctx.translate(ship.x,ship.y);ctx.rotate(ship.ang+ship.drift);ctx.globalAlpha=Math.random()>0.96?0.6:1;ctx.drawImage(shipImg,-60,-30,120,60);ctx.globalAlpha=1;ctx.restore();}
-function loop(t){time=t;ctx.clearRect(0,0,W,H);const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#010409");bg.addColorStop(1,"#020617");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);drawStars();drawPlanets();drawAsteroids();if(shipImg.complete){drawShip();}requestAnimationFrame(loop);}
-createStars(300);createPlanets();createAsteroids(60);requestAnimationFrame(loop);
-window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
+  // Space animácia
+  const canvas=document.getElementById("space");
+  const ctx=canvas.getContext("2d");
+  let W=canvas.width=innerWidth,H=canvas.height=innerHeight,time=0;
+  function rand(a,b){return a+Math.random()*(b-a);}
+  const stars=[],planets=[],asteroids=[];
+  const shipImg=new Image();shipImg.src="https://toppng.com/uploads/preview/spaceship-png-11552949252oedlxwxhur.png";
+  const ship={x:rand(0,W),y:rand(0,H),vx:rand(-0.5,0.5),vy:rand(-0.3,0.3),ang:rand(0,Math.PI*2),rotSpd:rand(-0.0015,0.0015),drift:0};
+
+  function createStars(n=300){for(let i=0;i<n;i++){stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.2,spd:rand(0.1,0.5)});}}
+  function createPlanets(){planets.push({x:W*0.3,y:H*0.6,r:80,colorA:'#2563eb',colorB:'#1e3a8a',ang:0,spd:0.0002});planets.push({x:W*0.7,y:H*0.4,r:50,colorA:'#f97316',colorB:'#92400e',ang:Math.PI/2,spd:-0.0003});}
+  function createAsteroids(n=60){for(let i=0;i<n;i++){asteroids.push({x:rand(0,W),y:rand(0,H),r:rand(1,3),spd:rand(0.2,1.2),dir:rand(-0.02,0.02)});}}
+  function drawStars(){for(const s of stars){s.y+=s.spd;if(s.y>H){s.y=0;s.x=Math.random()*W;}ctx.beginPath();ctx.fillStyle="white";ctx.globalAlpha=0.8;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}}
+  function drawPlanets(){for(const p of planets){p.ang+=p.spd;const x=p.x+Math.cos(p.ang)*10,y=p.y+Math.sin(p.ang)*6;const grad=ctx.createRadialGradient(x,y,p.r*0.2,x,y,p.r);grad.addColorStop(0,p.colorA);grad.addColorStop(1,p.colorB);ctx.beginPath();ctx.arc(x,y,p.r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();}}
+  function drawAsteroids(){for(const a of asteroids){a.x+=a.dir*10;a.y+=a.spd;if(a.y>H){a.y=0;a.x=Math.random()*W;}if(a.x<0)a.x=W;if(a.x>W)a.x=0;ctx.beginPath();ctx.fillStyle="rgba(150,130,110,0.8)";ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fill();}}
+  function drawShip(){ship.x+=ship.vx;ship.y+=ship.vy;ship.ang+=ship.rotSpd;ship.drift=Math.sin(time*0.003)*0.05;if(ship.x<-200)ship.x=W+200;if(ship.x>W+200)ship.x=-200;if(ship.y<-200)ship.y=H+200;if(ship.y>H+200)ship.y=-200;ctx.save();ctx.translate(ship.x,ship.y);ctx.rotate(ship.ang+ship.drift);ctx.globalAlpha=Math.random()>0.96?0.6:1;ctx.drawImage(shipImg,-60,-30,120,60);ctx.globalAlpha=1;ctx.restore();}
+  function loop(t){time=t;ctx.clearRect(0,0,W,H);const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#010409");bg.addColorStop(1,"#020617");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);drawStars();drawPlanets();drawAsteroids();if(shipImg.complete){drawShip();}requestAnimationFrame(loop);}
+  createStars(300);createPlanets();createAsteroids(60);requestAnimationFrame(loop);
+  window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
 </script>
+
 </body>
 </html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Miestnosť 1 – Java Úloha</title>
+<style>
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: url('imageroom1.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #f0f5ff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+  #centerbox {
+    margin: 60px 20px;
+    padding: 0 40px 40px 40px;
+    max-width: 680px;
+    width: 100%;
+    text-align: center;
+  }
+  h1 {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    color: #ffffff; /* biela farba nadpisu */
+    text-shadow: 0 0 10px #000000cc;
+  }
+  h3 {
+    font-size: 1.3rem;
+    margin-top: 2px;
+    margin-bottom: 28px;
+    color: #ade8ff;
+    text-shadow: 0 0 10px #065a8aaa;
+  }
+  pre {
+    background: #0b0b0bdd;
+    padding: 22px 5vw 22px 5vw;
+    border-radius: 12px;
+    color: #81c0ff;
+    font-family: 'Fira Mono', monospace;
+    font-size: 1.12em;
+    white-space: pre-wrap;
+    margin-bottom: 30px;
+    box-shadow: 0 0 16px #1e90ff88 inset;
+    text-align: left;
+  }
+  input.codebox {
+    font-family: 'Fira Mono', monospace;
+    font-weight: 600;
+    font-size: 1.12rem;
+    text-align: center;
+    width: 75px;
+    padding: 7px 10px;
+    border-radius: 20px;
+    margin: 0 5px;
+    border: 2px solid transparent;
+    box-shadow: 0 0 9px #84c2ff88 inset;
+    background: #0e0e23;
+    color: #a2c8ff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  input.codebox:focus {
+    outline: none;
+    border-color: #5299ffcc;
+    background-color: #142945;
+    box-shadow: 0 0 17px #5299ffaa inset;
+  }
+  #result-message.success {
+    color: #59eb92;
+    font-weight: 700;
+    font-size: 1.18rem;
+    margin: 12px 0 8px 0;
+    letter-spacing: 0.6px;
+    text-shadow: 0 0 10px #4ace83;
+  }
+  #result-message.fail {
+    color: #ff5f5f;
+    font-weight: 700;
+    font-size: 1.18rem;
+    margin: 12px 0 8px 0;
+    letter-spacing: 0.6px;
+    text-shadow: 0 0 5px #ff3a3a;
+  }
+  .btn-row {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+  }
+  button {
+    padding: 14px 44px;
+    font-size: 1.22rem;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #75aaff, #3f6dd6);
+    border: none;
+    color: #e5e5e5;
+    font-weight: 700;
+    box-shadow: 0 6px 18px #5c7bd0cc;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+  button:hover {
+    background: linear-gradient(135deg, #4a75d8, #1751bc);
+    box-shadow: 0 10px 32px #1f3ddb88;
+  }
+  a#next-button {
+    display: none;
+    padding: 14px 44px;
+    font-size: 1.22rem;
+    border-radius: 30px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ff6b6b, #ff8686);
+    color: #fff;
+    box-shadow: 0 8px 24px #e54f4f;
+    text-decoration: none;
+    user-select: none;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  a#next-button:hover {
+    background: linear-gradient(135deg, #ff4444, #ff5757);
+    box-shadow: 0 10px 36px #d81717;
+  }
+  #timer {
+    position: fixed;
+    bottom: 20px;
+    right: 40px;
+    background: #142853dd;
+    padding: 14px 38px;
+    border-radius: 22px;
+    color: #c6d8ff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    box-shadow: 0 8px 20px #09193177;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+  <div id="centerbox">
+    <h1>🚀 Miestnosť 1 – Java Úloha</h1>
+    <h3>Doplň kód, aby sa zobrazilo: "Elektrobicykel jazdí do vzdialenosti 60 km!"</h3>
+    <pre>
+class Bicykel {
+    void jazdit() {
+        System.out.println("Bicykel jazdí!");
+    }
+}
+class Elektrobicykel extends Bicykel {
+    void jazdit() {
+        System.out.println("Elektrobicykel jazdí do vzdialenosti 60 km!");
+    }
+}
+public static void main(String args[]) {
+    <input type="text" id="ans_1" class="codebox" autocomplete="off" placeholder="typ"> bicykel = new <input type="text" id="ans_2" class="codebox" autocomplete="off" placeholder="trieda">();
+    bicykel.<input type="text" id="ans_3" class="codebox" autocomplete="off" placeholder="metóda">();
+}
+    </pre>
+    <div id="result-message"></div>
+    <div class="btn-row">
+      <button id="check-answer">Skontrolovať odpoveď</button>
+      <a href="room2.html" id="next-button">Ďalej</a>
+    </div>
+  </div>
+  <div id="timer">30:00</div>
+  <script>
+    let correctAnswers = ['Bicykel', 'Elektrobicykel', 'jazdit'];
+    let timeLeft = 30 * 60;
+    const timerEl = document.getElementById('timer');
+    const checkBtn = document.getElementById('check-answer');
+    const nextBtn = document.getElementById('next-button');
+
+    setInterval(() => {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+      timeLeft--;
+      if (timeLeft < 0) timeLeft = 0;
+    }, 1000);
+
+    checkBtn.addEventListener('click', () => {
+      const allCorrect = 
+        document.getElementById('ans_1').value.trim() === correctAnswers[0] &&
+        document.getElementById('ans_2').value.trim() === correctAnswers[1] &&
+        document.getElementById('ans_3').value.trim() === correctAnswers[2];
+      const msg = document.getElementById('result-message');
+      if (allCorrect) {
+        msg.textContent = 'Správna odpoveď!';
+        msg.className = 'success';
+        checkBtn.style.display = 'none';
+        nextBtn.style.display = 'inline-block';
+        nextBtn.focus();
+      } else {
+        msg.textContent = 'Nesprávna odpoveď, skús znova.';
+        msg.className = 'fail';
+      }
+    });
+  </script>
+</body>
+</html>

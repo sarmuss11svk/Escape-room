@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>IT skratky – ťahaj a pusť</title>
+<style>
+  :root{
+    --bg:#0b0f17;
+    --panel:#111827cc;
+    --accent:#ff6b00;
+    --good:#22c55e;
+    --bad:#ef4444;
+    --muted:#94a3b8;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:system-ui,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    background:
+      radial-gradient(1200px 500px at 70% 20%, #1e293b55, transparent 60%),
+      radial-gradient(900px 400px at 20% 80%, #0ea5e955, transparent 60%),
+      linear-gradient(180deg,#0b1220,#060911 65%);
+    color:#e5e7eb;
+  }
+  header{
+    padding:16px 20px;
+    display:flex; gap:12px; align-items:center; justify-content:space-between;
+    border-bottom:1px solid #1f2937;
+    background:linear-gradient(180deg,#0b1220cc,#0b122080);
+    position:sticky; top:0; backdrop-filter: blur(8px);
+  }
+  .title{
+    font-size:clamp(18px,3vw,26px);
+    font-weight:800; letter-spacing:0.5px;
+  }
+  .subtitle{color:var(--muted); font-size:14px}
+  .controls{display:flex; gap:8px; align-items:center}
+  button{
+    background:#0ea5e9; color:white; border:0; padding:10px 14px;
+    border-radius:10px; font-weight:700; cursor:pointer;
+    box-shadow:0 6px 18px #0ea5e955;
+  }
+  button.secondary{background:#1f2937; color:#e5e7eb; box-shadow:none}
+  button:active{transform: translateY(1px)}
+  .timer{
+    font-variant-numeric: tabular-nums;
+    padding:8px 12px; border-radius:10px; background:#111827; color:#fca5a5;
+    border:1px solid #1f2937;
+  }
+
+  .wrap{
+    max-width:1200px; margin:24px auto; padding:0 16px 40px;
+    display:grid; grid-template-columns: 1.1fr 0.9fr; gap:18px;
+  }
+
+  /* Board (ľavá strana) */
+  .board{
+    background:var(--panel);
+    border:1px solid #1f2937; border-radius:16px;
+    padding:14px; box-shadow: 0 20px 60px #0008;
+  }
+  .row{
+    display:grid; grid-template-columns: 110px 1fr;
+    gap:12px; align-items:center; padding:10px;
+    border-bottom:1px dashed #1f2937;
+  }
+  .row:last-child{border-bottom:0}
+  .abbr{
+    background:#0b1220; border:1px solid #1f2937; color:#fff;
+    font-weight:800; text-align:center; padding:10px 8px; border-radius:12px;
+    letter-spacing:0.5px;
+  }
+  .slots{
+    display:grid; grid-template-columns: repeat(3, minmax(110px, 1fr));
+    gap:10px;
+  }
+  .slot{
+    min-height:44px; border:2px dashed #334155; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    color:#64748b; background:#0f172acc;
+  }
+  .slot.filled{border-style:solid}
+  .slot.correct{border-color:var(--good); box-shadow:0 0 0 3px #22c55e33 inset}
+  .slot.wrong{border-color:var(--bad); box-shadow:0 0 0 3px #ef444433 inset}
+
+  /* Bank (pravá strana) */
+  .bank{
+    background:var(--panel); border:1px solid #1f2937; border-radius:16px;
+    padding:14px; box-shadow: 0 20px 60px #0008;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .bank h3{margin:2px 2px 6px; font-size:14px; color:var(--muted)}
+  .tiles{
+    display:grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr));
+    gap:10px;
+  }
+  .tile{
+    user-select:none;
+    background:#0ea5e9; color:white; font-weight:800; text-align:center;
+    padding:10px 12px; border-radius:12px; border:0; cursor:grab;
+    box-shadow:0 8px 18px #0ea5e955;
+  }
+  .tile:active{cursor:grabbing}
+  .ghost{opacity:.4}
+  .hint{color:#cbd5e1; font-size:12px; margin-top:2px}
+  .status{
+    margin-left:10px; font-weight:700;
+  }
+  .status.ok{color:var(--good)}
+  .status.err{color:var(--bad)}
+  footer{color:#64748b; text-align:center; margin-top:6px; font-size:12px}
+  @media (max-width: 880px){
+    .wrap{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="title">TNT je skratka pre Trinitrotoluén. ⏳ Čas beží!</div>
+      <div class="subtitle">Úloha: Ťahaj slovíčka k skratkám tak, aby vznikli plné názvy.</div>
+    </div>
+    <div class="controls">
+      <div class="timer" id="timer">30:00</div>
+      <button id="checkBtn">Skontrolovať</button>
+      <button class="secondary" id="resetBtn">Reset</button>
+      <span class="status" id="status"></span>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- BOARD -->
+    <section class="board" id="board">
+      <!-- Riadky sa zaplnia JS-om podľa definície nižšie -->
+    </section>
+
+    <!-- BANK -->
+    <aside class="bank">
+      <h3>Dostupné slovíčka</h3>
+      <div class="tiles" id="bank"></div>
+      <div class="hint">Tip: môžeš slovíčko pretiahnuť späť do banky.</div>
+      <footer>Správne dvojice: DNS, VPN, SSH, WWW, TCP, UDP</footer>
+    </aside>
+  </div>
+
+<script>
+/* ---------- DÁTA ÚLOHY ---------- */
+const TASKS = [
+  { abbr: "DNS", words: ["Domain","Name","System"] },
+  { abbr: "VPN", words: ["Virtual","Private","Network"] },
+  { abbr: "SSH", words: ["Secure","Shell"] },
+  { abbr: "WWW", words: ["World","Wide","Web"] },
+  { abbr: "TCP", words: ["Transmission","Control","Protocol"] },
+  { abbr: "UDP", words: ["User","Datagram","Protocol"] },
+];
+
+// zoznam slov v banke (len jedny z každého, bez duplikátov)
+const BANK_WORDS = [
+  "Control","Private","System","Domain","World","Web","Virtual",
+  "Protocol","Secure","Transmission","Datagram","User","Name","Network","Wide","Shell"
+];
+
+/* ---------- VYKRESLENIE ---------- */
+const boardEl = document.getElementById("board");
+const bankEl  = document.getElementById("bank");
+
+function renderBoard(){
+  boardEl.innerHTML = "";
+  TASKS.forEach(({abbr, words})=>{
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const tag = document.createElement("div");
+    tag.className = "abbr";
+    tag.textContent = abbr;
+    row.appendChild(tag);
+
+    const slots = document.createElement("div");
+    slots.className = "slots";
+
+    const need = words.length;
+    for(let i=0;i<Math.max(3, need);i++){
+      const slot = document.createElement("div");
+      slot.className = "slot";
+      slot.dataset.abbr = abbr;
+      // ktorý word je správny? ak viac slotov než slov (napr. SSH), zvyšné nechávame „prázdne“
+      slot.dataset.correct = words[i] || "";
+      slots.appendChild(slot);
+    }
+    row.appendChild(slots);
+    boardEl.appendChild(row);
+  });
+}
+
+function renderBank(){
+  bankEl.innerHTML = "";
+  shuffle([...BANK_WORDS]).forEach(w=>{
+    const t = document.createElement("div");
+    t.className = "tile";
+    t.textContent = w;
+    t.draggable = true;
+    t.dataset.word = w;
+    bankEl.appendChild(t);
+  });
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+/* ---------- DRAG & DROP ---------- */
+let dragged = null;
+
+document.addEventListener("dragstart", e=>{
+  const t = e.target.closest(".tile");
+  if(!t) return;
+  dragged = t;
+  setTimeout(()=>t.classList.add("ghost"),0);
+  e.dataTransfer.setData("text/plain", t.dataset.word);
+});
+
+document.addEventListener("dragend", e=>{
+  if(dragged) dragged.classList.remove("ghost");
+  dragged = null;
+});
+
+document.addEventListener("dragover", e=>{
+  if(e.target.closest(".slot") || e.target.closest("#bank")) e.preventDefault();
+});
+
+document.addEventListener("drop", e=>{
+  const word = e.dataTransfer.getData("text/plain");
+  const slot = e.target.closest(".slot");
+  const bank = e.target.closest("#bank");
+
+  if(slot){
+    // ak slot už má dieťa, presuň ho späť do banky
+    if(slot.firstElementChild) bankEl.appendChild(slot.firstElementChild);
+    slot.classList.add("filled");
+    slot.appendChild(dragged);
+  }else if(bank){
+    bank.appendChild(dragged);
+  }
+});
+
+/* ---------- KONTROLA ---------- */
+function checkAll(){
+  let ok = 0;
+  let total = TASKS.length;
+  document.querySelectorAll(".slot").forEach(slot=>{
+    const needed = slot.dataset.correct;
+    const has = slot.firstElementChild?.dataset.word || "";
+    // prázdny „extra“ slot nehodnotíme
+    if(!needed){
+      slot.classList.remove("correct","wrong");
+      return;
+    }
+    if(needed === has){
+      slot.classList.add("correct");
+      slot.classList.remove("wrong");
+    }else{
+      slot.classList.add("wrong");
+      slot.classList.remove("correct");
+    }
+  });
+
+  // započítaj správne celé skratky
+  document.querySelectorAll(".row").forEach(row=>{
+    const required = [...row.querySelectorAll(".slot")].filter(s=>s.dataset.correct);
+    const good = required.every(s=>s.classList.contains("correct"));
+    if(good) ok++;
+  });
+
+  const status = document.getElementById("status");
+  if(ok === total){
+    status.textContent = "🎉 Super! Všetko správne.";
+    status.className = "status ok";
+    stopTimer(true);
+  }else{
+    status.textContent = `✔️ Správne: ${ok}/${total}`;
+    status.className = "status";
+  }
+}
+
+/* ---------- RESET ---------- */
+function resetAll(){
+  // odznačiť stavy
+  document.querySelectorAll(".slot").forEach(s=>{
+    if(s.firstElementChild) bankEl.appendChild(s.firstElementChild);
+    s.classList.remove("correct","wrong","filled");
+  });
+  document.getElementById("status").textContent = "";
+  stopTimer(); startTimer(30*60); // 30 min
+}
+
+/* ---------- TIMER ---------- */
+let timerId = null, remaining = 0;
+const timerEl = document.getElementById("timer");
+
+function startTimer(seconds){
+  remaining = seconds;
+  updateTimer();
+  timerId = setInterval(()=>{
+    remaining--;
+    updateTimer();
+    if(remaining<=0){ stopTimer(); timeUp(); }
+  }, 1000);
+}
+function stopTimer(win=false){
+  if(timerId){ clearInterval(timerId); timerId=null; }
+  if(win){ timerEl.style.color="#86efac"; }
+}
+function updateTimer(){
+  const m = Math.floor(remaining/60).toString().padStart(2,"0");
+  const s = (remaining%60).toString().padStart(2,"0");
+  timerEl.textContent = `${m}:${s}`;
+}
+function timeUp(){
+  document.getElementById("status").textContent = "⏰ Čas vypršal. Skús znova!";
+  document.getElementById("status").className = "status err";
+}
+
+/* ---------- INIT ---------- */
+renderBoard();
+renderBank();
+startTimer(30*60);
+
+document.getElementById("checkBtn").addEventListener("click", checkAll);
+document.getElementById("resetBtn").addEventListener("click", resetAll);
+</script>
+</body>
+</html>

@@ -1,353 +1,225 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Matrisia // Signal Matrix – IPv4</title>
-  <style>
-    /* =====================
-       Matrisia UI – centrované rozloženie + dvojkrokový flow
-       ===================== */
-    :root{
-      --bg:#070a12;
-      --panel:#0c1222;       
-      --panel-2:#10182e;     
-      --edge:#1c2a52;        
-      --glow:#6cf0ff;        
-      --ok:#2fe39a;          
-      --err:#ff6b81;         
-      --text:#eaf2ff;        
-      --muted:#a9b9ff;       
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; color:var(--text); background:
-        radial-gradient(90vw 90vh at 30% -10%, #101835 0%, transparent 55%),
-        radial-gradient(70vw 70vh at 80% 120%, #0e1530 0%, transparent 60%),
-        var(--bg);
-      font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      overflow-x:hidden;
-      display:grid; place-items:center; padding:24px;
-    }
-
-    /* jemné skenovacie línie + glow */
-    body:before, body:after{
-      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
-    }
-    body:before{background:repeating-linear-gradient(to bottom, rgba(255,255,255,.05), rgba(255,255,255,.05) 1px, transparent 2px); mix-blend-mode:overlay; opacity:.05}
-    body:after{background:radial-gradient(1200px 1200px at 50% -20%, rgba(108,240,255,.08), transparent 60%)}
-
-    .wrap{width:min(980px,100%); margin:auto; position:relative; z-index:1}
-
-    header{display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; margin-bottom:16px}
-    header h1{margin:0; font-weight:900; letter-spacing:.3px; font-size:clamp(1.4rem, 1.1rem + 1.6vw, 2.2rem)}
-    .sub{color:var(--muted); font-size:.95rem}
-
-    .controls{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:10px}
-    .tag{background:linear-gradient(180deg, #0d1428, #0a1122); border:1px solid var(--edge); padding:8px 12px; border-radius:999px}
-    .btn{cursor:pointer; padding:10px 14px; border-radius:12px; border:1px solid var(--edge); background:linear-gradient(180deg, var(--panel), var(--panel-2)); color:var(--text); transition:all .18s ease; font-weight:800}
-    .btn:hover{transform:translateY(-1px); box-shadow:0 0 0 1px rgba(108,240,255,.2), 0 10px 30px rgba(108,240,255,.08)}
-    .btn.ghost{background:transparent}
-
-    /* Karty v stĺpci, centrované */
-    .stack{display:grid; gap:16px}
-    .card{background:linear-gradient(180deg, rgba(12,18,34,.95), rgba(10,16,32,.95)); border:1px solid var(--edge); border-radius:18px; padding:18px; box-shadow:0 16px 40px rgba(0,0,0,.35)}
-
-    /* ============ Signal Matrix ============ */
-    .matrix{position:relative}
-    .legend{display:flex; justify-content:center; align-items:center; gap:12px; color:var(--muted); font-size:.95rem}
-    .led{display:inline-block; width:18px; height:18px; border-radius:6px; border:1px solid #2a3a6a; background:#0b1326; box-shadow:inset 0 0 6px rgba(0,0,0,.6)}
-    .led.on{background:radial-gradient(circle at 40% 40%, #e9feff, #aef 60%, #7be6ff 62%); box-shadow:0 0 12px rgba(108,240,255,.95), 0 0 36px rgba(108,240,255,.30)}
-
-    .bits{display:grid; grid-template-columns:repeat(32, 1fr); gap:12px; padding:24px 8px 8px; place-items:center}
-    .cell{width:22px; height:22px; border-radius:6px; border:1px solid #27386b; background:#0a1226; cursor:pointer; transition:transform .06s ease}
-    .cell:active{transform:scale(.9)}
-    .cell.on{background:radial-gradient(circle at 40% 40%, #f3ffff, #bff7ff 60%, #7be6ff 62%); box-shadow:0 0 12px rgba(108,240,255,.95), 0 0 36px rgba(108,240,255,.28)}
-    .cell.off{opacity:.48}
-
-    .octet-guides{display:flex; justify-content:space-between; font:800 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#9fb1ff; opacity:.85; padding:6px 8px 0}
-
-    .status{margin-top:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center}
-    .pill{border-radius:999px; padding:6px 10px; border:1px solid var(--edge); background:#0d162e; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
-    .pill.ok{color:#eafff5; border-color:#1b3e2e; background:linear-gradient(180deg, #133822, #10281a)}
-    .pill.err{color:#fff1f3; border-color:#4a1921; background:linear-gradient(180deg, #34131a, #271017)}
-
-    /* ============ Bríf 2. úlohy (zobrazí sa po úspechu 1.) ============ */
-    .brief{display:none}
-    .brief.show{display:block; animation:fade .3s ease}
-    @keyframes fade{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:translateY(0)}}
-    .kbd{font:800 13px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#0b152e; border:1px solid var(--edge); padding:10px; border-radius:10px; color:#cfe6ff; text-align:center}
-    .hint{font-size:.9rem; color:var(--muted); text-align:center}
-
-    /* ============ Terminál (len po potvrdení z brífu) ============ */
-    .terminal{display:none}
-    .terminal.show{display:block; animation:fade .3s ease}
-    .screen{border-radius:14px; background:#061128; border:1px solid var(--edge); padding:14px; font:900 18px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing:.5px; text-align:center}
-    .screen.ok{border-color:#1d4f3a; background:linear-gradient(180deg, #0d1f19, #0b1714)}
-    .screen.err{border-color:#4a1d24; background:linear-gradient(180deg, #1b0f12, #150b0e)}
-    .keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px}
-    .key{padding:14px 10px; border-radius:12px; border:1px solid var(--edge); background:linear-gradient(180deg, var(--panel), var(--panel-2)); font:900 18px/1 ui-sans-serif; cursor:pointer; transition:transform .06s ease}
-    .key:active{transform:translateY(1px)}
-
-    /* ============ Odmena / príbeh ============ */
-    .reward{display:none}
-    .reward.show{display:block; animation:fade .3s ease}
-    .reward .note{border-left:3px solid var(--glow); padding-left:12px; color:#dff8ff}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Miestnosť 2 – IT Skratky</title>
+<style>
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: url('imageroom2.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #f0f5ff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+  #centerbox {
+    margin: 60px 20px;
+    padding: 0 40px 40px 40px;
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+  }
+  h1 {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    color: #ffffff;
+    text-shadow: 0 0 10px #000000cc;
+  }
+  h3 {
+    font-size: 1.3rem;
+    margin-top: 2px;
+    margin-bottom: 28px;
+    color: #ade8ff;
+    text-shadow: 0 0 10px #065a8aaa;
+  }
+  pre {
+    background: #0b0b0bdd;
+    padding: 22px 5vw 22px 5vw;
+    border-radius: 12px;
+    color: #81c0ff;
+    font-family: 'Fira Mono', monospace;
+    font-size: 1.12em;
+    white-space: pre-wrap;
+    margin-bottom: 30px;
+    box-shadow: 0 0 16px #1e90ff88 inset;
+    text-align: left;
+  }
+  input.codebox {
+    font-family: 'Fira Mono', monospace;
+    font-weight: 600;
+    font-size: 1.12rem;
+    text-align: center;
+    width: 90px;
+    padding: 7px 10px;
+    border-radius: 20px;
+    margin: 0 5px;
+    border: 2px solid transparent;
+    box-shadow: 0 0 9px #84c2ff88 inset;
+    background: #0e0e23;
+    color: #a2c8ff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+  input.codebox:focus {
+    outline: none;
+    border-color: #5299ffcc;
+    background-color: #142945;
+    box-shadow: 0 0 17px #5299ffaa inset;
+  }
+  #result-message.success {
+    color: #59eb92;
+    font-weight: 700;
+    font-size: 1.18rem;
+    margin: 12px 0 8px 0;
+    text-shadow: 0 0 10px #4ace83;
+  }
+  #result-message.fail {
+    color: #ff5f5f;
+    font-weight: 700;
+    font-size: 1.18rem;
+    margin: 12px 0 8px 0;
+    text-shadow: 0 0 5px #ff3a3a;
+  }
+  .btn-row {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+  }
+  button, a#next-button {
+    padding: 14px 44px;
+    font-size: 1.22rem;
+    border-radius: 30px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  button {
+    background: linear-gradient(135deg, #75aaff, #3f6dd6);
+    color: #e5e5e5;
+    box-shadow: 0 6px 18px #5c7bd0cc;
+  }
+  button:hover {
+    background: linear-gradient(135deg, #4a75d8, #1751bc);
+    box-shadow: 0 10px 32px #1f3ddb88;
+  }
+  a#next-button {
+    display: none;
+    background: linear-gradient(135deg, #ff6b6b, #ff8686);
+    color: #fff;
+    box-shadow: 0 8px 24px #e54f4f;
+    text-decoration: none;
+  }
+  a#next-button:hover {
+    background: linear-gradient(135deg, #ff4444, #ff5757);
+    box-shadow: 0 10px 36px #d81717;
+  }
+  #timer {
+    position: fixed;
+    bottom: 20px;
+    right: 40px;
+    background: #142853dd;
+    padding: 14px 38px;
+    border-radius: 22px;
+    color: #c6d8ff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    box-shadow: 0 8px 20px #09193177;
+    user-select: none;
+  }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>Matrisia: <span style="color:var(--glow)">Signal Matrix</span></h1>
-      <div class="sub">Krok 1: zlož 32‑bitový vzor · Krok 2: vyrátaj broadcast · Krok 3: zadaj v termináli</div>
-      <div class="controls">
-        <span class="tag" id="taskLabel">Úloha sa načítava…</span>
-        <button class="btn" id="newBtn">Nová úloha</button>
-        <button class="btn ghost" id="toggleHelp">Nápoveda binárne</button>
-      </div>
-    </header>
-
-    <main class="stack">
-      <!-- KROK 1: Matica bitov -->
-      <section class="card matrix">
-        <div class="legend"><span class="led on"></span> = 1 (dióda svieti) &nbsp;&nbsp; <span class="led"></span> = 0 (dióda zhasnutá)</div>
-        <div id="bits" class="bits" aria-label="Mriežka 32 bitov"></div>
-        <div class="octet-guides" aria-hidden="true"><span>Oktet 1</span><span>Oktet 2</span><span>Oktet 3</span><span>Oktet 4</span></div>
-        <div class="status" id="status">
-          <span class="pill" id="currentIp">00000000.00000000.00000000.00000000</span>
-          <span class="pill" id="currentDec">0.0.0.0</span>
-          <span class="pill" id="checkPill">Porovnávanie…</span>
-        </div>
-      </section>
-
-      <!-- KROK 2: Bríf k druhej úlohe – zobrazí sa až po úspechu prvého kroku -->
-      <section class="card brief" id="brief">
-        <h3 style="text-align:center; margin:0 0 6px">Úloha 2: Broadcast pre daný subnet</h3>
-        <div class="kbd" id="briefInfo">–</div>
-        <p class="hint" id="briefHint" style="margin:8px 0 12px">Broadcast = IP <strong>OR</strong> (negovaná maska). Over formát: <code>x.x.x.x</code>.</p>
-        <div style="display:flex; gap:10px; justify-content:center">
-          <button class="btn" id="openTerminalBtn">Pokračovať do terminálu</button>
-        </div>
-      </section>
-
-      <!-- KROK 3: Terminál s klávesnicou (až po potvrdení z brífu) -->
-      <section class="card terminal" id="terminal" aria-live="polite">
-        <h3 style="text-align:center; margin:0 0 8px">Terminál vysielača</h3>
-        <div class="screen" id="screen">Formát: x.x.x.x</div>
-        <div class="keypad" id="keypad"></div>
-        <div style="display:flex; gap:10px; justify-content:center; margin-top:12px">
-          <button class="btn" id="clearBtn">Vymazať</button>
-          <button class="btn" id="submitBtn">Potvrdiť</button>
-        </div>
-      </section>
-
-      <!-- Odmena / príbeh -->
-      <section class="card reward" id="reward">
-        <h3 style="text-align:center; margin:0 0 6px">Správa z Matrisie</h3>
-        <p class="note" id="rewardText">—</p>
-      </section>
-    </main>
+  <div id="centerbox">
+    <h1>🧩 Miestnosť 2 – IT Skratky</h1>
+    <h3>Priraď ku skratkám ich plné názvy (dopíš chýbajúce slová)</h3>
+    <pre>
+DNS = <input type="text" id="dns1" class="codebox" placeholder="slovo"> <input type="text" id="dns2" class="codebox" placeholder="slovo"> <input type="text" id="dns3" class="codebox" placeholder="slovo">
+VPN = <input type="text" id="vpn1" class="codebox" placeholder="slovo"> <input type="text" id="vpn2" class="codebox" placeholder="slovo"> <input type="text" id="vpn3" class="codebox" placeholder="slovo">
+SSH = <input type="text" id="ssh1" class="codebox" placeholder="slovo"> <input type="text" id="ssh2" class="codebox" placeholder="slovo">
+WWW = <input type="text" id="www1" class="codebox" placeholder="slovo"> <input type="text" id="www2" class="codebox" placeholder="slovo"> <input type="text" id="www3" class="codebox" placeholder="slovo">
+TCP = <input type="text" id="tcp1" class="codebox" placeholder="slovo"> <input type="text" id="tcp2" class="codebox" placeholder="slovo"> <input type="text" id="tcp3" class="codebox" placeholder="slovo">
+UDP = <input type="text" id="udp1" class="codebox" placeholder="slovo"> <input type="text" id="udp2" class="codebox" placeholder="slovo"> <input type="text" id="udp3" class="codebox" placeholder="slovo">
+    </pre>
+    <div id="result-message"></div>
+    <div class="btn-row">
+      <button id="check-answer">Skontrolovať odpoveď</button>
+      <a href="room3.html" id="next-button">Ďalej</a>
+    </div>
   </div>
 
+  <div id="timer">30:00</div>
+
   <script>
-    // ================= IPv4 util =================
-    const toUint32 = n => (n >>> 0);
-    const intToIp = (x)=> [24,16,8,0].map(shift => (x>>>shift) & 255).join('.');
-    const prefixToMask = (p)=> p===0 ? 0 : toUint32(0xFFFFFFFF << (32 - p));
-    const ipToBits = (ip)=> ip.split('.').map(o=>(+o).toString(2).padStart(8,'0')).join('.');
-    const intToBitsSpaced = (x)=> [24,16,8,0].map(s=> ((x>>>s)&255).toString(2).padStart(8,'0')).join('.');
-    const computeBroadcastInt = (ipInt, prefix)=> toUint32(ipInt | (~prefixToMask(prefix)));
-    const computeNetworkInt = (ipInt, prefix)=> toUint32(ipInt & prefixToMask(prefix));
+    document.addEventListener('DOMContentLoaded', () => {
+      const correct = {
+        dns: ["Domain", "Name", "System"],
+        vpn: ["Virtual", "Private", "Network"],
+        ssh: ["Secure", "Shell"],
+        www: ["World", "Wide", "Web"],
+        tcp: ["Transmission", "Control", "Protocol"],
+        udp: ["User", "Datagram", "Protocol"]
+      };
 
-    // ================= Story/Reward =================
-    const REWARD_TEXT = "FRAGMENT 1/3 odomknutý: KÓD KAPITÁNY: ORION-7. Zlož ďalšie dve časti na plný prístup.";
+      let timeLeft = 30 * 60;
+      const timerEl = document.getElementById('timer');
+      const checkBtn = document.getElementById('check-answer');
+      const nextBtn = document.getElementById('next-button');
 
-    // ================= Task gen =================
-    const PREFIX_POOL = [24,25,26,27,28];
-    function rint(min,max){return Math.floor(Math.random()*(max-min+1))+min}
-    function randomTask(){
-      const p = PREFIX_POOL[rint(0,PREFIX_POOL.length-1)];
-      const o1 = rint(1,223);
-      const o2 = rint(0,255);
-      const o3 = rint(0,255);
-      const hostBits = 32 - p;
-      // zmysluplný last oktet pre daný prefix
-      let last;
-      if(hostBits<=8){
-        const usable = (1<<hostBits) - 2;
-        last = usable>0 ? rint(1, usable) : 0;
-      }else{
-        last = rint(1,254);
-      }
-      let ipInt = ((o1<<24)|(o2<<16)|(o3<<8)|last) >>> 0;
-      const net = computeNetworkInt(ipInt,p);
-      const bc = computeBroadcastInt(ipInt,p);
-      if(ipInt===net||ipInt===bc) ipInt = net+1;
-      return {ipInt, prefix:p};
-    }
+      const storedTime = localStorage.getItem('escape_timer');
+      if (storedTime !== null) timeLeft = parseInt(storedTime, 10);
 
-    // ================= State/Refs =================
-    let target=null, cells=[], stage=1, inputValue="";
-    const els={
-      bits:document.getElementById('bits'),
-      taskLabel:document.getElementById('taskLabel'),
-      currentIp:document.getElementById('currentIp'),
-      currentDec:document.getElementById('currentDec'),
-      checkPill:document.getElementById('checkPill'),
-      brief:document.getElementById('brief'),
-      briefInfo:document.getElementById('briefInfo'),
-      terminal:document.getElementById('terminal'),
-      screen:document.getElementById('screen'),
-      keypad:document.getElementById('keypad'),
-      newBtn:document.getElementById('newBtn'),
-      clearBtn:document.getElementById('clearBtn'),
-      submitBtn:document.getElementById('submitBtn'),
-      openTerminalBtn:document.getElementById('openTerminalBtn'),
-      toggleHelp:document.getElementById('toggleHelp'),
-      reward:document.getElementById('reward'),
-      rewardText:document.getElementById('rewardText')
-    };
+      // TIMER
+      setInterval(() => {
+        const m = Math.floor(timeLeft / 60);
+        const s = timeLeft % 60;
+        timerEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        timeLeft--;
+        if (timeLeft < 0) timeLeft = 0;
+        localStorage.setItem('escape_timer', timeLeft);
+      }, 1000);
 
-    // ================= Matrix build =================
-    function buildMatrix(){
-      els.bits.innerHTML='';
-      cells=[];
-      for(let i=0;i<32;i++){
-        const d=document.createElement('div');
-        d.className='cell off';
-        d.dataset.index=i;
-        d.title=`Bit ${i+1}`;
-        d.addEventListener('click',()=>toggleCell(i));
-        els.bits.appendChild(d);
-        cells.push(d);
-      }
-    }
+      // CHECK ANSWERS
+      checkBtn.addEventListener('click', () => {
+        let allCorrect = true;
 
-    function toggleCell(i){
-      if(stage!==1) return; // v kroku 2/3 už neupravujeme maticu
-      const el=cells[i];
-      el.classList.toggle('on');
-      el.classList.toggle('off');
-      renderCurrent();
-      checkSolved();
-    }
+        function checkGroup(prefix, expected) {
+          for (let i = 0; i < expected.length; i++) {
+            const val = document.getElementById(prefix + (i+1)).value.trim();
+            if (val.toLowerCase() !== expected[i].toLowerCase()) {
+              allCorrect = false;
+            }
+          }
+        }
 
-    function currentBitsInt(){
-      let v=0; for(let i=0;i<32;i++) v=(v<<1)|(cells[i].classList.contains('on')?1:0); return v>>>0;
-    }
+        checkGroup("dns", correct.dns);
+        checkGroup("vpn", correct.vpn);
+        checkGroup("ssh", correct.ssh);
+        checkGroup("www", correct.www);
+        checkGroup("tcp", correct.tcp);
+        checkGroup("udp", correct.udp);
 
-    function setBitsFromInt(x){
-      for(let i=31;i>=0;i--){
-        const bit=(x >>> (31 - i)) & 1;
-        cells[i].classList.toggle('on',bit===1);
-        cells[i].classList.toggle('off',bit===0);
-      }
-      renderCurrent();
-    }
-
-    function renderCurrent(){
-      const cur=currentBitsInt();
-      els.currentIp.textContent=intToBitsSpaced(cur);
-      els.currentDec.textContent=intToIp(cur);
-      const ok = cur===target.ipInt;
-      els.checkPill.textContent = ok ? 'Vzor sedí' : 'Ešte nesedí';
-      els.checkPill.className='pill '+(ok?'ok':'err');
-    }
-
-    // ================= Stage transitions =================
-    function onStage1Solved(){
-      stage=2;
-      // zobraz bríf 2. úlohy (adresy pre ďalší krok)
-      const ipStr=intToIp(target.ipInt);
-      const mask=intToIp(prefixToMask(target.prefix));
-      const net=intToIp(computeNetworkInt(target.ipInt,target.prefix));
-      const bc=intToIp(computeBroadcastInt(target.ipInt,target.prefix));
-      els.briefInfo.textContent = `${ipStr} /${target.prefix}  | maska ${mask}  | sieť ${net}  | broadcast ?`;
-      els.brief.classList.add('show');
-      // zablokuj maticu (už je hotová)
-    }
-
-    function openTerminal(){
-      if(stage!==2) return;
-      stage=3;
-      els.terminal.classList.add('show');
-      inputValue=''; updateScreen();
-    }
-
-    // ================= Terminal =================
-    function buildKeypad(){
-      const keys=['1','2','3','4','5','6','7','8','9','.','0','⌫'];
-      els.keypad.innerHTML='';
-      keys.forEach(k=>{
-        const b=document.createElement('button'); b.className='key'; b.textContent=k; b.addEventListener('click',()=>onKey(k));
-        els.keypad.appendChild(b);
+        const msg = document.getElementById('result-message');
+        if (allCorrect) {
+          msg.textContent = "🎉 Správne! Pokračuj ďalej.";
+          msg.className = "success";
+          checkBtn.style.display = "none";
+          nextBtn.style.display = "inline-block";
+          nextBtn.focus();
+        } else {
+          msg.textContent = "❌ Niečo nesedí, skús znova.";
+          msg.className = "fail";
+        }
       });
-    }
-
-    function onKey(k){
-      if(stage!==3) return;
-      if(k==='⌫') inputValue=inputValue.slice(0,-1);
-      else{
-        if(k==='.' && (inputValue.endsWith('.') || inputValue.split('.').length>=4)){}
-        else inputValue+=k;
-      }
-      updateScreen();
-    }
-
-    function updateScreen(state){
-      els.screen.textContent = inputValue || '—';
-      els.screen.classList.remove('ok','err');
-      if(state==='ok') els.screen.classList.add('ok');
-      if(state==='err') els.screen.classList.add('err');
-    }
-
-    function submitCode(){
-      if(stage!==3) return;
-      const expected=intToIp(computeBroadcastInt(target.ipInt,target.prefix));
-      if(inputValue===expected){
-        updateScreen('ok');
-        els.screen.textContent=`✔️ Správne – broadcast: ${expected}`;
-        els.rewardText.textContent=REWARD_TEXT;
-        els.reward.classList.add('show');
-      }else{
-        updateScreen('err');
-        els.screen.textContent='❌ Nesprávne. Skús znovu.';
-      }
-    }
-
-    function checkSolved(){
-      if(stage===1 && currentBitsInt()===target.ipInt){ onStage1Solved(); }
-    }
-
-    // ================= New Task =================
-    function newTask(){
-      stage=1; inputValue='';
-      els.brief.classList.remove('show');
-      els.terminal.classList.remove('show');
-      els.reward.classList.remove('show');
-      target=randomTask();
-      const ipStr=intToIp(target.ipInt);
-      document.getElementById('taskLabel').textContent=`Krok 1: Zostav diódy pre ${ipStr}/${target.prefix}`;
-      setBitsFromInt(0);
-      renderCurrent();
-    }
-
-    // ================= Controls =================
-    document.getElementById('newBtn').addEventListener('click', newTask);
-    document.getElementById('clearBtn').addEventListener('click', ()=>{inputValue=''; updateScreen();});
-    document.getElementById('submitBtn').addEventListener('click', submitCode);
-    document.getElementById('openTerminalBtn').addEventListener('click', openTerminal);
-    document.getElementById('toggleHelp').addEventListener('click', ()=>{
-      // jednoduché toast zobrazenie binárnej nápovedy
-      const ipStr=intToIp(target.ipInt);
-      alert('Binárne: '+ ipToBits(ipStr));
     });
-
-    // init
-    buildMatrix();
-    buildKeypad();
-    newTask();
   </script>
 </body>
 </html>

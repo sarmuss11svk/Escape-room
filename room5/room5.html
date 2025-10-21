@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pexeso 3×2 + 3×2 – Vesmírne páry (blokované strany)</title>
+<style>
+  :root{
+    --bg1:#090b1a; --bg2:#0c1024; --star:#ffffff; --ok:#44d07b; --err:#ff6b6b;
+    --cardW: 112px; --cardH: 148px; --gap: 12px;
+  }
+  *{box-sizing:border-box;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+  body{
+    margin:0; color:#e9f2ff; background:radial-gradient(1200px 600px at 70% -20%,#10204a 0,#0c1024 55%,#090b1a 100%);
+    min-height:100vh; overflow-x:hidden;
+  }
+  header{ text-align:center; padding:20px 12px 8px; }
+  h1{ margin:0 0 4px; font-size:1.6rem; text-shadow:0 0 22px rgba(0,229,255,.4); }
+  .lead{ opacity:.9; margin:0 auto; max-width:900px; font-size:.95rem; }
+
+  .stars{ position:fixed; inset:0; pointer-events:none; z-index:-1; }
+  .star{ position:absolute; width:2px; height:2px; background:var(--star); border-radius:50%;
+         opacity:.7; animation:twinkle 5s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100%{opacity:.15} 45%{opacity:.9} }
+
+  .wrap{ max-width:860px; margin:16px auto 70px; padding:0 10px; }
+  .board{
+    display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start;
+  }
+  .col{
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+    border:1px solid rgba(0,229,255,.28);
+    border-radius:14px; padding:12px;
+    box-shadow:0 0 34px rgba(0,229,255,.12) inset, 0 8px 28px rgba(0,0,0,.35);
+  }
+  .col h2{ margin:0 0 8px; font-size:.95rem; color:#a7f3ff; letter-spacing:.35px; text-align:center; }
+
+  .grid{
+    display:grid; grid-template-columns:repeat(3, var(--cardW)); grid-auto-rows:var(--cardH);
+    gap:var(--gap); justify-content:center; align-content:center;
+    min-height: calc(var(--cardH)*2 + var(--gap));
+  }
+
+  .card{ width:var(--cardW); height:var(--cardH); perspective:1000px; cursor:pointer; }
+  .inner{ position:relative; width:100%; height:100%; transition:transform .45s; transform-style:preserve-3d; }
+  .card.flipped .inner{ transform:rotateY(180deg); }
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:12px; overflow:hidden;
+    border:1px solid rgba(255,255,255,.15);
+    box-shadow:0 6px 18px rgba(0,0,0,.35), 0 0 16px rgba(0,229,255,.12);
+  }
+  .front{
+    display:flex; align-items:center; justify-content:center;
+    background:#0f1730 url('puzzle.png') center/cover no-repeat;
+  }
+  .front::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(140% 90% at 50% -10%,rgba(0,229,255,.12),transparent 60%);
+    mix-blend-mode:screen;
+  }
+  .back{
+    transform:rotateY(180deg);
+    background:linear-gradient(180deg,#162a5c,#0c1431);
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .back .label{
+    font-size:1.1rem; font-weight:800; letter-spacing:.5px; text-transform:uppercase;
+    color:#bfeaff; text-shadow:0 0 10px rgba(0,229,255,.35);
+  }
+  .card.matched .inner{ transform:rotateY(180deg) scale(0.98); }
+  .card.matched .back{ outline:2px solid var(--ok); box-shadow:0 0 18px rgba(68,208,123,.5); }
+  .shake{ animation:shake .22s linear 1; }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+  .panel{ margin-top:14px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+  .btn{
+    background:linear-gradient(135deg,#ff6b6b,#ff8f8f); border:none; color:#fff; border-radius:10px;
+    padding:9px 12px; cursor:pointer; font-weight:600; box-shadow:0 6px 14px rgba(0,0,0,.3);
+  }
+  .btn:hover{ transform:translateY(-1px) }
+  .stat{ padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.13); font-size:.95rem; }
+  .ok{ color:var(--ok) }
+
+  footer{ text-align:center; opacity:.75; margin:16px 0 28px; font-size:.9rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🛰️ Pexeso – Vesmírne páry (blokované strany)</h1>
+  <p class="lead">Po kliknutí na kartu z jednej strany môžeš vybrať len kartu z opačnej strany.</p>
+</header>
+
+<div class="stars" id="stars"></div>
+
+<div class="wrap">
+  <div class="board">
+    <section class="col">
+      <h2>ĽAVÁ STRANA</h2>
+      <div class="grid" id="leftGrid"></div>
+    </section>
+    <section class="col">
+      <h2>PRAVÁ STRANA</h2>
+      <div class="grid" id="rightGrid"></div>
+    </section>
+  </div>
+
+  <div class="panel">
+    <button class="btn" id="resetBtn">🔄 Reštart</button>
+    <span class="stat">Pokusy: <b id="moves">0</b></span>
+    <span class="stat">Páry: <b id="found">0</b>/6</span>
+    <span class="stat ok" id="msg"></span>
+  </div>
+</div>
+
+<script>
+const PAIR_IDS = ["ANDROMEDA","ORION","NEBULA","QUASAR","SPUTNIK","PHOENIX"];
+const LABELS = { ANDROMEDA:"A", ORION:"O", NEBULA:"N", QUASAR:"Q", SPUTNIK:"S", PHOENIX:"P" };
+
+const leftGrid  = document.getElementById('leftGrid');
+const rightGrid = document.getElementById('rightGrid');
+const movesEl   = document.getElementById('moves');
+const foundEl   = document.getElementById('found');
+const msgEl     = document.getElementById('msg');
+
+let state = {
+  moves:0, found:0, lock:false, first:null, second:null, allowedSide:null
+};
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function makeDeck(){
+  const L = shuffle([...PAIR_IDS]);
+  const R = shuffle([...PAIR_IDS]);
+  return {L,R};
+}
+function createCard(id,side){
+  const card=document.createElement('div');
+  card.className='card';
+  card.dataset.id=id;
+  card.dataset.side=side;
+  const inner=document.createElement('div');
+  inner.className='inner';
+  const front=document.createElement('div');
+  front.className='face front';
+  const back=document.createElement('div');
+  back.className='face back';
+  const lab=document.createElement('div');
+  lab.className='label';
+  lab.textContent=LABELS[id]||id;
+  back.appendChild(lab);
+  inner.appendChild(front); inner.appendChild(back);
+  card.appendChild(inner);
+  card.addEventListener('click',()=>onCardClick(card));
+  return card;
+}
+function resetGame(){
+  state={moves:0,found:0,lock:false,first:null,second:null,allowedSide:null};
+  movesEl.textContent='0'; foundEl.textContent='0'; msgEl.textContent='';
+  leftGrid.innerHTML=''; rightGrid.innerHTML='';
+  const decks=makeDeck();
+  decks.L.forEach(id=>leftGrid.appendChild(createCard(id,'L')));
+  decks.R.forEach(id=>rightGrid.appendChild(createCard(id,'R')));
+}
+function onCardClick(card){
+  if(state.lock) return;
+  const side=card.dataset.side;
+  // blokovanie rovnakých strán
+  if(state.allowedSide && state.allowedSide===side){
+    msg('🔒 Najprv klikni na opačnú stranu!');
+    return;
+  }
+  if(card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  card.classList.add('flipped');
+  if(!state.first){
+    state.first={el:card,id:card.dataset.id,side:side};
+    state.allowedSide = side==="L" ? "L" : "R"; // nastav, čo sa zakáže
+    msg('➡ Teraz vyber kartu z opačnej strany');
+    return;
+  }
+  state.second={el:card,id:card.dataset.id,side:side};
+  state.lock=true;
+  state.moves++; movesEl.textContent=state.moves;
+  const isMatch=state.first.id===state.second.id && state.first.side!==state.second.side;
+  if(isMatch){
+    setTimeout(()=>{
+      state.first.el.classList.add('matched');
+      state.second.el.classList.add('matched');
+      state.found++; foundEl.textContent=state.found;
+      msg('✅ Pár nájdený!',true);
+      resetPick();
+    },250);
+  }else{
+    setTimeout(()=>{
+      state.first.el.classList.add('shake');
+      state.second.el.classList.add('shake');
+    },100);
+    setTimeout(()=>{
+      state.first.el.classList.remove('flipped','shake');
+      state.second.el.classList.remove('flipped','shake');
+      msg('❌ To nie je pár.');
+      resetPick();
+    },450);
+  }
+}
+function resetPick(){
+  state.first=null; state.second=null; state.lock=false; state.allowedSide=null;
+  if(state.found===PAIR_IDS.length) msg('🎉 Našiel si všetky páry!',true);
+}
+function msg(t,ok=false){ msgEl.textContent=t||''; msgEl.style.color=ok?'var(--ok)':'#e9f2ff'; }
+
+document.getElementById('resetBtn').addEventListener('click',resetGame);
+resetGame();
+
+/* hviezdy */
+(function(){
+  const box=document.createElement('div'); box.className='stars'; document.body.appendChild(box);
+  const N=100; for(let i=0;i<N;i++){const s=document.createElement('div'); s.className='star';
+  s.style.left=Math.random()*100+'vw'; s.style.top=Math.random()*100+'vh';
+  s.style.opacity=0.3+Math.random()*0.7; s.style.animationDelay=Math.random()*5+'s'; box.appendChild(s);}
+})();
+</script>
+</body>
+</html>

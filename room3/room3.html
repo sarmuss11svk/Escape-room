@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Miestnosť 3 – AI CORE: Kognitívna rekonštrukcia</title>
+<style>
+  :root{--accent:#00f5d4;--accentGlow:#00f5d480;--ok:#36d98b;--err:#ff5d7a;--text:#e8fbff;--muted:#a9c3cc;--panel:rgba(10,16,22,.78);--stroke:rgba(255,255,255,.1)}
+  *{box-sizing:border-box;font-family:"Segoe UI",system-ui,Arial,sans-serif}
+  html,body{height:100%}
+  body{margin:0;color:var(--text);background:#000 url('AI.jpg') center/cover no-repeat fixed}
+  body::before{content:"";position:fixed;inset:0;z-index:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.65));pointer-events:none}
+  main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:20px}
+  header{text-align:center;margin:14px 0 18px}
+  h1{margin:0 0 6px;font-size:clamp(22px,3.2vw,34px);color:var(--accent);text-shadow:0 0 14px var(--accentGlow)}
+  .sub{opacity:.9}
+  .aiCore{width:140px;height:140px;border-radius:50%;margin:18px auto 16px;background:radial-gradient(circle at 50% 45%,var(--accentGlow),transparent 65%),radial-gradient(circle at 50% 55%,rgba(0,190,255,.22),transparent 75%);animation:pulse 3s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.08);opacity:1}}
+  .monitor{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;margin-bottom:12px;backdrop-filter:blur(8px)}
+  .led{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  #arena{position:relative;height:56vh;min-height:360px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--stroke);border-radius:14px;overflow:hidden;backdrop-filter:blur(2px);box-shadow:inset 0 10px 40px rgba(0,0,0,.35);margin-bottom:12px}
+  .chip{position:absolute;left:50%;transform:translateX(-50%);background:rgba(0,245,212,.10);border:1px solid rgba(0,245,212,.35);color:var(--text);padding:9px 16px;border-radius:999px;font-weight:700;text-shadow:0 0 6px rgba(0,245,212,.3);white-space:nowrap;letter-spacing:.2px;box-shadow:0 6px 20px rgba(0,0,0,.45);transition:transform .22s,opacity .22s,filter .22s;user-select:none}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .group{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pill{background:var(--panel);border:1px solid var(--stroke);padding:8px 12px;border-radius:10px;backdrop-filter:blur(8px)}
+  .btn{padding:11px 18px;border-radius:12px;border:1px solid var(--stroke);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));color:var(--text);font-weight:800;cursor:pointer;letter-spacing:.3px;box-shadow:0 10px 26px rgba(0,0,0,.2),inset 0 0 18px rgba(255,255,255,.05);transition:transform .12s,box-shadow .12s,border-color .12s;backdrop-filter:blur(6px)}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(0,0,0,.26),inset 0 0 20px rgba(255,255,255,.07)}
+  .btn:active{transform:translateY(1px)}
+  .ok{border-color:color-mix(in lab,#36d98b,white 22%);box-shadow:0 8px 24px color-mix(in lab,#36d98b,transparent 80%)}
+  .err{border-color:color-mix(in lab,#ff5d7a,white 22%);box-shadow:0 8px 24px color-mix(in lab,#ff5d7a,transparent 80%)}
+  .start{border-color:color-mix(in lab,var(--accent),white 20%);animation:glow 2.2s ease-in-out infinite}
+  @keyframes glow{0%,100%{box-shadow:0 0 12px var(--accentGlow)}50%{box-shadow:0 0 26px var(--accent)}}
+  button:disabled{filter:grayscale(.4) brightness(.85);pointer-events:none}
+  .overlay{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:radial-gradient(800px 600px at 50% 35%,rgba(0,245,212,.12),transparent 65%),rgba(0,0,0,.65)}
+  .card{width:min(760px,92vw);background:var(--panel);border:1px solid var(--stroke);border-radius:16px;padding:20px;text-align:center;backdrop-filter:blur(10px);box-shadow:0 30px 120px rgba(0,0,0,.45),0 0 40px rgba(0,245,212,.10) inset}
+  .card h2{margin:0 0 8px;color:var(--accent);text-shadow:0 0 12px var(--accentGlow)}
+  .type{min-height:48px;opacity:.9;white-space:pre-line}
+  #timer{position:fixed;bottom:20px;right:40px;background:#142853dd;padding:12px 26px;border-radius:22px;color:#c6d8ff;font-size:1.1rem;font-weight:700;letter-spacing:1px;box-shadow:0 8px 20px #09193177;user-select:none;z-index:1}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>🚀 Miestnosť 3 – AI CORE: Kognitívna rekonštrukcia</h1>
+    <div class="sub">Po obnovení energie je AI Matrisie fragmentovaná. Tried správne pojmy k téme, ostatné odmietni.</div>
+  </header>
+
+  <div class="aiCore" aria-hidden="true"></div>
+
+  <div class="monitor">
+    <div class="led"></div>
+    <div>Aktuálny modul: <strong id="theme">—</strong></div>
+  </div>
+
+  <div id="arena"></div>
+
+  <div class="row" style="margin-top:10px">
+    <div class="group">
+      <button class="btn ok" id="btnCatch">✅ CHYTIŤ (A)</button>
+      <button class="btn err" id="btnAvoid">❌ VYHNÚŤ SA (B)</button>
+    </div>
+    <div class="group">
+      <div class="pill">Skóre: <span id="score">0</span></div>
+      <div class="pill">Level: <span id="level">1</span></div>
+      <button class="btn start" id="btnStart">▶️ Štart</button>
+    </div>
+  </div>
+</main>
+
+<div id="timer">30:00</div>
+
+<div class="overlay" id="overlay">
+  <div class="card">
+    <h2>Prebudiť AI Matrisie</h2>
+    <div class="type" id="type"></div>
+    <div style="margin-top:14px;opacity:.85">Skratky: <b>A</b> = CHYTIŤ · <b>B</b> = VYHNÚŤ · <b>Space</b> = Štart</div>
+    <div style="margin-top:16px">
+      <button class="btn start" id="btnBegin">✨ Spustiť rekonštrukciu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const THEMES_ORDER=['prog','net','db','web','kyb'];
+const THEMES_LABEL={prog:'Programovanie',net:'Siete',db:'Databázy',web:'Web',kyb:'Kybernetika'};
+
+
+const arena=document.getElementById('arena');
+const themeEl=document.getElementById('theme');
+const scoreEl=document.getElementById('score');
+const levelEl=document.getElementById('level');
+const btnCatch=document.getElementById('btnCatch');
+const btnAvoid=document.getElementById('btnAvoid');
+const btnStart=document.getElementById('btnStart');
+const overlay=document.getElementById('overlay');
+const btnBegin=document.getElementById('btnBegin');
+const typer=document.getElementById('type');
+const timerEl=document.getElementById('timer');
+
+
+let score=0,level=1,running=false,active=null,speed=1,themeIndex=0,loopLast=0;
+let currentItem=null,timeLeft=30*60;
+
+
+function typewrite(el,text,speed=22){el.textContent='';let i=0;(function t(){if(i<=text.length){el.textContent=text.slice(0,i++);setTimeout(t,speed);}})();}
+
+
+setInterval(()=>{if(!running)return;if(timeLeft<0)return end("Vypršal čas.");const m=Math.floor(timeLeft/60),s=timeLeft%60;timerEl.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;timeLeft--;localStorage.setItem('escape_timer',timeLeft);},1000);
+
+
+function fatal(msg='Databáza nedostupná.'){
+  running=false;
+  alert(msg);
+  document.querySelector('#overlay h2').textContent='Chyba databázy';
+  typer.textContent=msg+'\nSkontroluj pripojenie k MySQL a PHP endpointu.';
+  document.getElementById('btnBegin').style.display='none';
+  btnStart.disabled=true;
+}
+
+
+async function loadItem(theme){
+  const url = 'get_room3_question.php?theme=' + encodeURIComponent(theme);
+  try{
+    const res = await fetch(url, {cache:'no-store'});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if(data.ok && data.item){return data.item;}
+    throw new Error(data.error||'Žiadne dáta.');
+  }catch(err){
+    console.error(err);
+    fatal('Nepodarilo sa načítať dáta z DB.');
+    return null;
+  }
+}
+
+
+async function setThemeByIndex(i){
+  themeIndex=(i%THEMES_ORDER.length+THEMES_ORDER.length)%THEMES_ORDER.length;
+  const key=THEMES_ORDER[themeIndex];
+  themeEl.textContent=THEMES_LABEL[key]||key;
+  const item=await loadItem(key);
+  if(!item) return false;
+  currentItem=item; return true;
+}
+
+
+function spawn(){
+  if(!running||active||!currentItem) return;
+  const el=document.createElement('div');
+  el.className='chip';
+  el.textContent=currentItem.text;
+
+  const goodNum = Number(currentItem.is_good) === 1 ? 1 : 0;
+  el.dataset.good = String(goodNum);
+
+  el.style.left=(Math.random()*76+12)+'%';
+  el.style.top='-10%';
+  arena.appendChild(el);
+  active={el,top:-10,speed:(0.42+Math.random()*0.5)*speed};
+}
+
+
+function loop(ts){
+  if(!running) return;
+  if(!loopLast) loopLast=ts;
+  const dt=(ts-loopLast)/1000; loopLast=ts;
+  if(active){
+    active.top+=active.speed*dt*34;
+    active.el.style.top=active.top+'%';
+    if(active.top>90){end('Nestihol si!');return;}
+  }else{ spawn(); }
+  requestAnimationFrame(loop);
+}
+
+
+function success(){
+  active.el.style.opacity='.7';
+  active.el.style.transform='scale(.82) translateY(-16px)';
+  setTimeout(()=>{active.el.remove();active=null;},170);
+  score++; scoreEl.textContent=score;
+  if(score%6===0){ level++; levelEl.textContent=level; speed*=1.12; setThemeByIndex(themeIndex+1); }
+  else { setThemeByIndex(themeIndex); }
+}
+
+
+function act(accept){
+  if(!active) return;
+  const ok = active.el.dataset.good==='1';
+  const correct = (accept && ok) || (!accept && !ok);
+  if(correct) success(); else end('Chybná klasifikácia.');
+}
+
+
+async function start(){
+  if(running) return;
+  running=true; score=0; level=1; speed=1; timeLeft=30*60;
+  scoreEl.textContent='0'; levelEl.textContent='1';
+  arena.innerHTML='';
+  const ok=await setThemeByIndex(0);
+  if(!ok){ running=false; return; }
+  loopLast=0; requestAnimationFrame(loop);
+}
+
+
+function end(msg){ running=false; alert(`${msg}\nSkóre: ${score}`); }
+
+
+btnCatch.onclick=()=>act(true);
+btnAvoid.onclick=()=>act(false);
+btnStart.onclick=()=>{overlay.style.display='none';start();};
+btnBegin.onclick=()=>{overlay.style.display='none';start();};
+document.addEventListener('keydown',e=>{
+  if(e.key==='a'||e.key==='A')act(true);
+  if(e.key==='b'||e.key==='B')act(false);
+  if(e.code==='Space'){e.preventDefault();if(!running){overlay.style.display='none';start();}}
+});
+typewrite(typer,'„AI Matrisie je fragmentovaná.“\nTried správne pojmy podľa modulov vedomostí a obnov jej vedomie.',18);
+</script>
+</body>
+</html>

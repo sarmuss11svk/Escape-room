@@ -1,118 +1,335 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
 <title>Escape Room - Matrisia</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
-body{background:#000;color:#fff;min-height:100vh;overflow:hidden;text-align:center;}
-canvas#space{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;}
-header{position:relative;z-index:5;padding:50px 20px 20px 20px;background-color:rgba(0,0,0,0.5);}
-header h1{font-size:3em;margin-bottom:20px;text-shadow:2px 2px 8px #000;}
-header p{font-size:1.2em;max-width:700px;margin:0 auto 40px auto;}
-.ship-container{display:flex;justify-content:center;margin-bottom:30px;}
-.ship-image{max-width:30%;height:auto;border-radius:15px;box-shadow:0 0 20px rgba(255,255,255,0.5);animation:float 4s ease-in-out infinite;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
-.main-buttons{display:flex;justify-content:center;gap:20px;flex-direction:column;align-items:center;}
-.start-button{padding:12px 30px;font-size:1.1em;border-radius:12px;background:linear-gradient(135deg,#ff6b6b,#ff8787);box-shadow:0 5px 15px rgba(255,107,107,0.4);color:#fff;text-decoration:none;transition:all 0.3s ease;}
-.start-button:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(255,107,107,0.6);}
-footer{position:relative;z-index:5;text-align:center;padding:20px;background-color:rgba(0,0,0,0.5);font-size:0.9em;}
-.sidebar{position:fixed;top:0;left:-280px;width:280px;height:100%;background-color:rgba(20,20,30,0.95);color:#fff;padding:20px;box-shadow:4px 0 15px rgba(0,0,0,0.7);transition:left 0.3s ease;z-index:100;overflow-y:auto;border-right:2px solid #ff6b6b;}
-.sidebar.active{left:0;}
-.sidebar-header{text-align:center;margin-bottom:20px;}
-.sidebar-header span{font-size:1.5em;font-weight:bold;}
-.sidebar-content h3{margin-top:20px;margin-bottom:10px;}
-.sidebar-content input[type="range"]{width:100%;margin-bottom:15px;padding:8px;border-radius:8px;border:none;}
-.sidebar-toggle{position:fixed;top:20px;left:20px;background-color:#ff6b6b;border:none;color:#fff;font-size:1.5em;padding:10px 12px;border-radius:50%;cursor:pointer;z-index:110;transition:all 0.3s ease;}
-.sidebar-toggle:hover{background-color:#ff8787;transform:scale(1.2);}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+  html,body{height:100%;background:#000;color:#fff;overflow:hidden;text-align:center;overscroll-behavior:none;}
+
+  /* Canvas = úplne čierne, nepriehľadné pozadie */
+  #space{
+    position:fixed; inset:0; display:block;
+    width:100vw; height:100vh; z-index:0; background:#000;
+    transform:translateZ(0);
+  }
+
+  header{
+    position:relative; z-index:5; padding:36px 20px 20px;
+    background:transparent;
+  }
+  header h1{font-size:clamp(2rem,4vw,3rem);margin-bottom:16px;text-shadow:0 1px 3px rgba(0,0,0,.7);}
+  header p{font-size:1.1rem;max-width:700px;margin:0 auto 28px;opacity:.95}
+  .ship-container{display:flex;justify-content:center;margin-bottom:24px;}
+  .ship-image{
+    max-width:min(420px, 38vw); width:100%; height:auto; border-radius:16px;
+    box-shadow:0 0 18px rgba(255,255,255,.28);
+    animation:float 5s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+  .main-buttons{display:flex;justify-content:center;gap:16px;}
+  .start-button{
+    padding:12px 24px;font-size:1.05em;border-radius:12px;
+    background:linear-gradient(135deg,#ff6b6b,#ff8787);
+    box-shadow:0 5px 15px rgba(255,107,107,.35);
+    color:#fff;text-decoration:none;transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .start-button:hover{transform:translateY(-1px) scale(1.02);box-shadow:0 8px 20px rgba(255,107,107,.5);}
+
+  /* Toggle = len emoji (ozubené koliesko) */
+  .sidebar-toggle{
+    position:fixed; top:20px; left:20px; z-index:110;
+    background:#20232a; border:1px solid #2c334a; color:#fff; font-size:20px;
+    padding:10px 12px; border-radius:12px; cursor:pointer; transition:.2s; user-select:none;
+  }
+  .sidebar-toggle:hover{background:#2a2f38; transform:translateY(-1px)}
+
+  /* Mini panel – otvára sa POD tlačidlom, so šípkou */
+  .sidebar{
+    position:fixed; top:70px; left:20px; z-index:100;
+    width:300px; max-width:90vw; max-height:70vh; overflow:auto;
+    background:#0f121b; color:#fff;
+    padding:14px 14px 12px; border:1px solid #2c334a; border-radius:12px;
+    box-shadow:0 10px 26px rgba(0,0,0,.55);
+    opacity:0; transform:translateY(-8px) scale(.98);
+    visibility:hidden; pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease, visibility 0s linear .22s;
+  }
+  .sidebar::before{
+    content:""; position:absolute; top:-8px; left:18px; width:14px; height:14px;
+    background:#0f121b; border-left:1px solid #2c334a; border-top:1px solid #2c334a;
+    transform:rotate(45deg);
+  }
+  .sidebar.active{
+    opacity:1; transform:translateY(0) scale(1);
+    visibility:visible; pointer-events:auto;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .sidebar label{font-size:.9em;opacity:.9}
+  .sidebar input[type="range"]{width:100%;margin:6px 0 12px}
+  .sidebar .admin-btn{
+    width:100%; padding:10px 14px; border-radius:10px; border:1px solid #0bc;
+    background:linear-gradient(135deg,#00c2ff,#00a0d6); color:#001017; font-weight:700;
+    display:inline-block; text-decoration:none; margin-top:6px;
+    box-shadow:0 6px 16px rgba(0,194,255,.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .sidebar .admin-btn:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,194,255,.45); }
+
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
-<canvas id="space"></canvas>
+<canvas id="space" aria-hidden="true"></canvas>
 
 <header>
-<h1>Escape Room: Matrisia</h1>
-<p>Naša loď Matrisia sa pokazila vo vesmíre a my musíme bezpečne doraziť na Zem 2.0 – planétu Oretria. Rieš úlohy a dostaň sa späť domov.</p>
-<div class="ship-container">
-<img src="https://i.pinimg.com/736x/19/c7/91/19c7919a7db729fe057988c3afa2577b.jpg" alt="Vesmírna loď Matrisia" class="ship-image">
-</div>
-
-<div class="main-buttons">
-    <!-- Pôvodné tlačidlo -->
-    <a href="questions_menu.html" class="start-button">Štart</a>
-    <!-- Nové tlačidlo na room1.html -->
-    <a href="room1.html" class="start-button" style="background: linear-gradient(135deg,#6bff6b,#87ff87); margin-top:10px; display:inline-block;">Testovacie</a>
-</div>
+  <h1>Escape Room: Matrisia</h1>
+  <p>Naša loď Matrisia sa pokazila vo vesmíre a my musíme bezpečne doraziť na Zem 2.0 – planétu Oretria. Rieš úlohy a dostaň sa späť domov.</p>
+  <div class="ship-container">
+    <img src="https://i.pinimg.com/736x/19/c7/91/19c7919a7db729fe057988c3afa2577b.jpg" alt="Vesmírna loď Matrisia" class="ship-image" loading="lazy">
+  </div>
+  <div class="main-buttons">
+    <a href="room1.html" class="start-button">Štart</a>
+  </div>
 </header>
 
-<!-- Sidebar -->
-<div id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-        <span>Nastavenia</span>
-    </div>
-    
-    <div class="sidebar-content">
-        <h3>Zvukové nastavenia</h3>
-        <label for="music-volume">Hudba:</label>
-        <input type="range" id="music-volume" min="0" max="100" value="50">
-        <label for="effects-volume">Efekty:</label>
-        <input type="range" id="effects-volume" min="0" max="100" value="50">
-    </div>
-    <div class="sidebar-content">
-        <h3>Prihlásenie správcu</h3>
-        <input type="text" id="admin-name" placeholder="Meno">
-        <input type="password" id="admin-pass" placeholder="Heslo">
-        <button id="admin-login">Prihlásiť</button>
-    </div>
+<!-- Toggle = len emoji -->
+<button id="openSidebar" class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar" title="Panel">⚙️</button>
+
+<!-- Mini panel -->
+<div id="sidebar" class="sidebar" aria-label="Panel">
+  <label for="music-volume">Hudba</label>
+  <input type="range" id="music-volume" min="0" max="100" value="50">
+  <label for="effects-volume">Efekty</label>
+  <input type="range" id="effects-volume" min="0" max="100" value="50">
+  <a href="spravca.html" class="admin-btn">🔑 Prihlásiť správcu</a>
 </div>
 
-<button id="openSidebar" class="sidebar-toggle">⚙️</button>
-
-<footer>
-Samuel Novák & Daniela Hredzaková - Riešitelia<br>
-Stredná odborná škola elektrotechnická, Prešov
-</footer>
-
 <script>
-  // Sidebar toggle
-  const sidebar=document.getElementById('sidebar');
-  const toggleBtn=document.getElementById('openSidebar');
-  toggleBtn.addEventListener('click',()=>{sidebar.classList.toggle('active');});
+/* --- Toggle panelu, klik mimo, ESC --- */
+const sidebar = document.getElementById('sidebar');
+const toggleBtn = document.getElementById('openSidebar');
 
-  // Admin login
-  document.getElementById('admin-login').addEventListener('click', function() {
-    const name = document.getElementById('admin-name').value;
-    const pass = document.getElementById('admin-pass').value;
-    if (name === 'spravca' && pass === 'Password') {
-      alert('Prihlásenie úspešné!');
-      window.location.href = 'admin-panel.html';
-    } else {
-      alert('Neplatné meno alebo heslo!');
+function setSidebar(open){
+  sidebar.classList.toggle('active', open);
+  toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+toggleBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  setSidebar(!sidebar.classList.contains('active'));
+});
+document.addEventListener('click', (e)=>{
+  if(!sidebar.classList.contains('active')) return;
+  if(!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) setSidebar(false);
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') setSidebar(false);
+});
+
+/* --- Canvas animácia: nepriehľadné, plná čierna --- */
+const canvas = document.getElementById('space');
+const ctx = canvas.getContext('2d', { alpha: false });
+const DPR = Math.min(2, window.devicePixelRatio || 1);
+let W=0, H=0, last = performance.now();
+
+function resize(){
+  W = Math.round(window.innerWidth);
+  H = Math.round(window.innerHeight);
+  canvas.width  = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+resize();
+addEventListener('resize', resize, {passive:true});
+
+const R=(a,b)=>a+Math.random()*(b-a);
+
+/* ===== METEORY – viditeľné a častejšie (nastaviteľné) ===== */
+const FORCE_FIRST_METEOR = true;
+const DEBUG_METEOR_RAIN  = false;
+
+/* Hviezdy (3 vrstvy) */
+const stars=[];
+const STAR_LAYERS=[
+  {density:.9,  speed:12, size:[.6,1.1], alpha:.55},
+  {density:.55, speed:22, size:[.9,1.6], alpha:.75},
+  {density:.35, speed:40, size:[1.2,2.2], alpha:.95}
+];
+function initStars(){
+  stars.length=0;
+  const area=(W*H)/1000;
+  STAR_LAYERS.forEach(L=>{
+    const n=Math.max(10, Math.floor(area*L.density));
+    for(let i=0;i<n;i++){
+      stars.push({x:Math.random()*W,y:Math.random()*H,r:R(L.size[0],L.size[1]),s:L.speed,a:L.alpha*R(.75,1)});
     }
   });
+}
+initStars();
+function drawStars(dt, drift){
+  for(const s of stars){
+    s.x -= (s.s*dt*0.001) + drift.x*0.15;
+    s.y += (s.s*0.35*dt*0.001) + drift.y*0.08;
+    if(s.x<-2) s.x+=W+2;
+    if(s.y>H+2) s.y-=H+2;
+    ctx.globalAlpha=s.a; ctx.fillStyle='#fff';
+    ctx.fillRect((s.x|0), (s.y|0), s.r, s.r);
+  }
+  ctx.globalAlpha=1;
+}
 
-  // Space animácia
-  const canvas=document.getElementById("space");
-  const ctx=canvas.getContext("2d");
-  let W=canvas.width=innerWidth,H=canvas.height=innerHeight,time=0;
-  function rand(a,b){return a+Math.random()*(b-a);}
-  const stars=[],planets=[],asteroids=[];
-  const shipImg=new Image();shipImg.src="https://toppng.com/uploads/preview/spaceship-png-11552949252oedlxwxhur.png";
-  const ship={x:rand(0,W),y:rand(0,H),vx:rand(-0.5,0.5),vy:rand(-0.3,0.3),ang:rand(0,Math.PI*2),rotSpd:rand(-0.0015,0.0015),drift:0};
+/* Planéty (glow, ring) — FIX: bez driftu, zostanú na presných pozíciách */
+const planets=[
+  { x:0.22, y:0.72, r:110, hue:215, pulse:0.0022, ring:false },
+  { x:0.78, y:0.18, r:70,  hue:20,  pulse:0.0018, ring:false },
+  { x:0.88, y:0.40, r:26,  hue:45,  pulse:0.0030, ring:true }
+];
+function drawPlanet(px,py,r,hue,ring){
+  const g=ctx.createRadialGradient(px-r*.35,py-r*.55,r*.15, px,py,r*1.25);
+  g.addColorStop(0,`hsla(${hue},70%,62%,.95)`); g.addColorStop(1,`hsla(${hue},80%,20%,0)`);
+  ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
 
-  function createStars(n=300){for(let i=0;i<n;i++){stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.2,spd:rand(0.1,0.5)});}}
-  function createPlanets(){planets.push({x:W*0.3,y:H*0.6,r:80,colorA:'#2563eb',colorB:'#1e3a8a',ang:0,spd:0.0002});planets.push({x:W*0.7,y:H*0.4,r:50,colorA:'#f97316',colorB:'#92400e',ang:Math.PI/2,spd:-0.0003});}
-  function createAsteroids(n=60){for(let i=0;i<n;i++){asteroids.push({x:rand(0,W),y:rand(0,H),r:rand(1,3),spd:rand(0.2,1.2),dir:rand(-0.02,0.02)});}}
-  function drawStars(){for(const s of stars){s.y+=s.spd;if(s.y>H){s.y=0;s.x=Math.random()*W;}ctx.beginPath();ctx.fillStyle="white";ctx.globalAlpha=0.8;ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}}
-  function drawPlanets(){for(const p of planets){p.ang+=p.spd;const x=p.x+Math.cos(p.ang)*10,y=p.y+Math.sin(p.ang)*6;const grad=ctx.createRadialGradient(x,y,p.r*0.2,x,y,p.r);grad.addColorStop(0,p.colorA);grad.addColorStop(1,p.colorB);ctx.beginPath();ctx.arc(x,y,p.r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();}}
-  function drawAsteroids(){for(const a of asteroids){a.x+=a.dir*10;a.y+=a.spd;if(a.y>H){a.y=0;a.x=Math.random()*W;}if(a.x<0)a.x=W;if(a.x>W)a.x=0;ctx.beginPath();ctx.fillStyle="rgba(150,130,110,0.8)";ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fill();}}
-  function drawShip(){ship.x+=ship.vx;ship.y+=ship.vy;ship.ang+=ship.rotSpd;ship.drift=Math.sin(time*0.003)*0.05;if(ship.x<-200)ship.x=W+200;if(ship.x>W+200)ship.x=-200;if(ship.y<-200)ship.y=H+200;if(ship.y>H+200)ship.y=-200;ctx.save();ctx.translate(ship.x,ship.y);ctx.rotate(ship.ang+ship.drift);ctx.globalAlpha=Math.random()>0.96?0.6:1;ctx.drawImage(shipImg,-60,-30,120,60);ctx.globalAlpha=1;ctx.restore();}
-  function loop(t){time=t;ctx.clearRect(0,0,W,H);const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#010409");bg.addColorStop(1,"#020617");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);drawStars();drawPlanets();drawAsteroids();if(shipImg.complete){drawShip();}requestAnimationFrame(loop);}
-  createStars(300);createPlanets();createAsteroids(60);requestAnimationFrame(loop);
-  window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;});
+  ctx.beginPath(); ctx.arc(px-r*.25, py-r*.35, r*.95, 0, Math.PI*2);
+  ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=2; ctx.stroke();
+
+  if(ring){
+    ctx.save(); ctx.translate(px,py); ctx.rotate(-.45);
+    const rg=ctx.createLinearGradient(-r*2.1,0,r*2.1,0);
+    rg.addColorStop(0,'rgba(255,255,255,0)');
+    rg.addColorStop(.5,'rgba(255,235,180,.55)');
+    rg.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.strokeStyle=rg; ctx.lineWidth=r*.5;
+    ctx.beginPath(); ctx.ellipse(0,0,r*2.1,r*.55,0,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+}
+function drawPlanets(t /* bez driftu */){
+  planets.forEach(p=>{
+    const r=p.r*(1+Math.sin(t*p.pulse)*.015);
+    // Použijeme Math.round, nie |0, aby sme zabránili drobnému jitteru pri pulze
+    const px = Math.round(p.x*W);
+    const py = Math.round(p.y*H);
+    drawPlanet(px, py, r, p.hue, p.ring);
+  });
+}
+
+/* Prach */
+const dust=[];
+function initDust(n=60){
+  dust.length=0;
+  for(let i=0;i<n;i++)
+    dust.push({x:Math.random()*W,y:Math.random()*H,r:R(1,3),vx:R(-.25,.45),vy:R(.6,1.2)});
+}
+initDust();
+function drawDust(drift){
+  ctx.fillStyle='rgba(150,130,110,.85)';
+  for(const a of dust){
+    a.x+=a.vx+drift.x*.2; a.y+=a.vy+drift.y*.15;
+    if(a.y>H){a.y=-8;a.x=Math.random()*W;}
+    if(a.x<-8)a.x=W+8; if(a.x>W+8)a.x=-8;
+    ctx.beginPath(); ctx.arc(a.x|0,a.y|0,a.r,0,Math.PI*2); ctx.fill();
+  }
+}
+
+/* Meteory – výrazné a častejšie */
+let lastMeteor=0;
+const meteors=[]; // {x,y,vx,vy,len,life,head}
+const METEOR_CFG = {
+  minGap: 1200, maxGap: 2200,
+  speed: [9,14],
+  len:   [120,200],
+  head:  [3.0,4.2],
+  lifeDecay: 0.00028
+};
+function spawnMeteor(t){
+  const gap = DEBUG_METEOR_RAIN ? 600 : R(METEOR_CFG.minGap, METEOR_CFG.maxGap);
+  if((t - lastMeteor) < gap) return;
+  lastMeteor = t;
+
+  const targetX = R(W*0.35, W*0.65);
+  const targetY = R(H*0.35, H*0.65);
+
+  const fromLeft = Math.random() < 0.5;
+  const startX = fromLeft ? -100 : W + 100;
+  const startY = R(H*0.1, H*0.6);
+
+  const dx = targetX - startX;
+  const dy = targetY - startY;
+  const hyp = Math.hypot(dx, dy) || 1;
+  const speed = R(METEOR_CFG.speed[0], METEOR_CFG.speed[1]);
+  const vx = (dx/hyp) * speed;
+  const vy = (dy/hyp) * speed;
+
+  meteors.push({
+    x: startX, y: startY,
+    vx, vy,
+    len: R(METEOR_CFG.len[0], METEOR_CFG.len[1]),
+    life: 1,
+    head: R(METEOR_CFG.head[0], METEOR_CFG.head[1])
+  });
+}
+if (FORCE_FIRST_METEOR) {
+  setTimeout(()=>spawnMeteor(performance.now()+METEOR_CFG.minGap+1), 250);
+}
+
+function drawMeteors(dt){
+  for(let i=meteors.length-1;i>=0;i--){
+    const m=meteors[i];
+    m.x+=m.vx; m.y+=m.vy;
+    m.life -= dt * METEOR_CFG.lifeDecay;
+
+    const ang = Math.atan2(m.vy,m.vx);
+    const tx  = m.x - Math.cos(ang)*m.len;
+    const ty  = m.y - Math.sin(ang)*m.len;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+
+    const grad=ctx.createLinearGradient(m.x,m.y,tx,ty);
+    grad.addColorStop(0,  `rgba(255,255,255,${Math.max(0,Math.min(.95, m.life*1.1))})`);
+    grad.addColorStop(0.35,`rgba(160,210,255,${Math.max(0,Math.min(.65, m.life))})`);
+    grad.addColorStop(1,  'rgba(120,180,255,0)');
+    ctx.strokeStyle=grad; ctx.lineWidth=3.5;
+    ctx.beginPath(); ctx.moveTo(m.x|0, m.y|0); ctx.lineTo(tx|0, ty|0); ctx.stroke();
+
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255,236,200,${Math.max(0,Math.min(1,m.life*1.2))})`;
+    ctx.arc(m.x|0, m.y|0, m.head, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+
+    if(m.x<-250||m.x>W+250||m.y<-250||m.y>H+250||m.life<=0) meteors.splice(i,1);
+  }
+}
+
+/* Slučka – plná čierna výplň každý frame */
+function frame(t){
+  const dt=Math.min(48, t-last); last=t;
+  const drift={x:Math.sin(t*.00009), y:Math.cos(t*.00007)};
+  ctx.globalCompositeOperation='source-over';
+  ctx.globalAlpha=1;
+  ctx.fillStyle='#000';
+  ctx.fillRect(0,0,W,H);
+
+  drawStars(dt,drift);
+  drawPlanets(t);          // FIX: bez driftu
+  drawDust(drift);
+  drawMeteors(dt);
+  spawnMeteor(t);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* Re-init na resize */
+addEventListener('resize', ()=>{resize();initStars();initDust();});
 </script>
-
 </body>
 </html>

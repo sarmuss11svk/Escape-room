@@ -27,7 +27,7 @@
     font-size: 2.5rem;
     letter-spacing: 2px;
     margin-bottom: 14px;
-    color: #ffffff; /* biela farba nadpisu */
+    color: #ffffff;
     text-shadow: 0 0 10px #000000cc;
   }
   h3 {
@@ -168,41 +168,52 @@ public static void main(String args[]) {
     <div id="result-message"></div>
     <div class="btn-row">
       <button id="check-answer">Skontrolovať odpoveď</button>
-      <a href="room2.html" id="next-button">Ďalej</a>
+      <a href="room3/room3.html" id="next-button">Ďalej</a>
     </div>
   </div>
   <div id="timer">30:00</div>
   <script>
-    let correctAnswers = ['Bicykel', 'Elektrobicykel', 'jazdit'];
-    let timeLeft = 30 * 60;
-    const timerEl = document.getElementById('timer');
-    const checkBtn = document.getElementById('check-answer');
-    const nextBtn = document.getElementById('next-button');
+    document.addEventListener('DOMContentLoaded', () => {
+      let correctAnswers = ['Bicykel', 'Elektrobicykel', 'jazdit'];
+      let timeLeft = 30 * 60;
+      const timerEl = document.getElementById('timer');
+      const checkBtn = document.getElementById('check-answer');
+      const nextBtn = document.getElementById('next-button');
 
-    setInterval(() => {
-      const minutes = Math.floor(timeLeft / 60);
-      const seconds = timeLeft % 60;
-      timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-      timeLeft--;
-      if (timeLeft < 0) timeLeft = 0;
-    }, 1000);
-
-    checkBtn.addEventListener('click', () => {
-      const allCorrect = 
-        document.getElementById('ans_1').value.trim() === correctAnswers[0] &&
-        document.getElementById('ans_2').value.trim() === correctAnswers[1] &&
-        document.getElementById('ans_3').value.trim() === correctAnswers[2];
-      const msg = document.getElementById('result-message');
-      if (allCorrect) {
-        msg.textContent = 'Správna odpoveď!';
-        msg.className = 'success';
-        checkBtn.style.display = 'none';
-        nextBtn.style.display = 'inline-block';
-        nextBtn.focus();
-      } else {
-        msg.textContent = 'Nesprávna odpoveď, skús znova.';
-        msg.className = 'fail';
+      const storedTime = localStorage.getItem('escape_timer');
+      if (storedTime !== null) {
+        timeLeft = parseInt(storedTime, 10);
       }
+
+      setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+        timeLeft--;
+        if (timeLeft < 0) timeLeft = 0;
+        localStorage.setItem('escape_timer', timeLeft);
+      }, 1000);
+
+      checkBtn.addEventListener('click', () => {
+        const val1 = document.getElementById('ans_1').value.trim();
+        const val2 = document.getElementById('ans_2').value.trim();
+        const val3 = document.getElementById('ans_3').value.trim();
+        const allCorrect =
+          val1 === correctAnswers[0] &&
+          val2 === correctAnswers[1] &&
+          val3 === correctAnswers[2];
+        const msg = document.getElementById('result-message');
+        if (allCorrect) {
+          msg.textContent = 'Správna odpoveď!';
+          msg.className = 'success';
+          checkBtn.style.display = 'none';
+          nextBtn.style.display = 'inline-block';
+          nextBtn.focus();
+        } else {
+          msg.textContent = 'Nesprávna odpoveď, skús znova.';
+          msg.className = 'fail';
+        }
+      });
     });
   </script>
 </body>

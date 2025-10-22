@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Escape Room – Vesmírna loď: Prepoj káble</title>
+  <style>
+    :root{--bg:#0a0e1a;--text:#e0e6f0;--muted:#8899bb;--accent:#00d9ff;--ok:#00ff88;--bad:#ff4466}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Courier New',Courier,monospace;background:#0a0e1a;color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:20px}
+    body::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(0,217,255,0.03), transparent 70%);pointer-events:none}
+    
+    .container{max-width:700px;width:100%;text-align:center}
+    h1{margin:0 0 8px 0;font-size:22px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);text-shadow:0 0 15px rgba(0,217,255,0.6)}
+    .desc{color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.5}
+
+    /* Panel */
+    #panel{position:relative;width:100%;height:450px;background:rgba(20,25,40,0.8);border:2px solid rgba(0,217,255,0.3);border-radius:12px;padding:16px;box-shadow:0 0 30px rgba(0,217,255,0.2), inset 0 0 50px rgba(0,100,150,0.1);backdrop-filter:blur(4px);margin-bottom:20px}
+    #panel::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,217,255,0.02) 2px,rgba(0,217,255,0.02) 4px);pointer-events:none;border-radius:12px}
+    .side{position:absolute;top:20px;bottom:20px;display:flex;flex-direction:column;justify-content:space-between}
+    .left{left:20px}
+    .right{right:20px}
+    .socket{width:44px;height:44px;border-radius:8px;border:2px solid rgba(0,217,255,0.5);background:rgba(15,25,45,0.9);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;user-select:none;box-shadow:inset 0 0 10px rgba(0,100,150,0.3);transition:all 0.2s}
+    .socket[data-hot="1"]{box-shadow:0 0 15px rgba(0,255,136,0.6), inset 0 0 10px rgba(0,255,136,0.2);border-color:#00ff88}
+    .socket.used{opacity:0.3;cursor:not-allowed !important}
+
+    /* SVG káble */
+    svg{position:absolute;inset:0;pointer-events:none;border-radius:12px}
+    .wire{fill:none;stroke-width:6;pointer-events:auto;cursor:crosshair;filter:drop-shadow(0 0 4px currentColor);transition:all 0.3s}
+    .ghost{stroke-dasharray:8 6;opacity:.8;animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:.8}50%{opacity:.5}}
+
+    /* UI */
+    .btn{background:rgba(0,217,255,0.2);color:var(--accent);border:1px solid rgba(0,217,255,0.5);border-radius:6px;padding:12px 24px;cursor:pointer;font-family:'Courier New',Courier,monospace;font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:1px;transition:all 0.2s;display:inline-block}
+    .btn:hover{background:rgba(0,217,255,0.3);box-shadow:0 0 15px rgba(0,217,255,0.4)}
+    #result{min-height:24px;font-weight:700;font-size:14px;margin-top:16px}
+    .ok{color:var(--ok);text-shadow:0 0 8px rgba(0,255,136,0.5)}
+    .bad{color:var(--bad);text-shadow:0 0 8px rgba(255,68,102,0.5)}
+
+    /* Success animation */
+    .success-screen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:1000;align-items:center;justify-content:center;animation:fadeIn 0.5s}
+    .success-screen.show{display:flex}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .success-content{text-align:center;animation:zoomIn 0.6s}
+    @keyframes zoomIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+    .success-title{font-size:48px;margin-bottom:20px;animation:glow 2s infinite}
+    @keyframes glow{0%,100%{text-shadow:0 0 20px rgba(0,255,136,0.8)}50%{text-shadow:0 0 40px rgba(0,255,136,1), 0 0 60px rgba(0,217,255,0.6)}}
+    .success-code{font-size:32px;color:var(--accent);margin-top:20px;letter-spacing:4px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ STROJOVŇA – Oprava napájania ⚡</h1>
+    <div class="desc">Systém je poškodený. Prepoj každý ľavý konektor s pravým portom.<br>Každý kábel môžeš použiť len raz.</div>
+    
+    <div id="panel">
+      <div class="side left" id="left"></div>
+      <div class="side right" id="right"></div>
+      <svg id="wires" width="100%" height="100%"></svg>
+    </div>
+
+    <button class="btn" id="reset">↻ RESET SYSTÉMU</button>
+    <div id="result"></div>
+  </div>
+
+  <div class="success-screen" id="success">
+    <div class="success-content">
+      <div class="success-title">🚀 SYSTÉM OBNOVENÝ 🚀</div>
+      <div style="font-size:20px;color:var(--ok)">Misia splnená!</div>
+      <div class="success-code">KÓD: STARSHIP-7X1</div>
+    </div>
+  </div>
+
+  <script>
+    const COLORS=['#e11d48','#3b82f6','#eab308','#22c55e','#a855f7','#f97316'];
+    const SYMBOLS=['Δ','O','X','★','□','◇'];
+
+    const leftEl=document.getElementById('left');
+    const rightEl=document.getElementById('right');
+    const svg=document.getElementById('wires');
+    const resEl=document.getElementById('result');
+    const successEl=document.getElementById('success');
+
+    let mapping=[];
+    let drag=null;
+    let connectedCount=0;
+
+    function setupSockets(){
+      leftEl.innerHTML=''; rightEl.innerHTML=''; svg.innerHTML=''; mapping=[]; resEl.textContent=''; connectedCount=0;
+      successEl.classList.remove('show');
+      
+      const order=[0,1,2,3,4,5].sort(()=>Math.random()-0.5);
+      for(let i=0;i<6;i++){
+        const idx=order[i];
+        const sym=SYMBOLS[idx];
+        const col=COLORS[idx];
+        const L=document.createElement('div'); 
+        L.className='socket'; 
+        L.textContent=sym; 
+        L.style.borderColor=col; 
+        leftEl.appendChild(L);
+        
+        const R=document.createElement('div'); 
+        R.className='socket'; 
+        R.textContent=sym;
+        R.style.borderColor=col;
+        rightEl.appendChild(R);
+        
+        mapping.push({color:col, symbol:sym, L, R, used:false});
+      }
+      
+      mapping.forEach((m, idx)=> makeDraggable(idx));
+    }
+
+    function getCenter(el){ 
+      const r=el.getBoundingClientRect(); 
+      const pr=svg.getBoundingClientRect(); 
+      return {x:r.left - pr.left + r.width/2, y:r.top - pr.top + r.height/2}; 
+    }
+    
+    function pathD(ax,ay,bx,by){ 
+      const dx=(bx-ax)/2; 
+      return `M ${ax} ${ay} C ${ax+dx} ${ay}, ${bx-dx} ${by}, ${bx} ${by}`; 
+    }
+
+    function makeDraggable(idx){
+      const L=mapping[idx].L; 
+      const color=mapping[idx].color;
+      
+      const startDrag=(clientX,clientY)=>{
+        if(mapping[idx].used) return;
+        resEl.textContent='';
+        const a=getCenter(L);
+        const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+        p.setAttribute('class','wire ghost');
+        p.setAttribute('stroke', color);
+        svg.appendChild(p);
+        drag={idx, path:p, start:a};
+        moveDrag(clientX,clientY);
+        highlightTargets(true);
+      };
+      
+      const moveDrag=(clientX,clientY)=>{
+        if(!drag) return; 
+        const pr=svg.getBoundingClientRect(); 
+        const x=clientX-pr.left; 
+        const y=clientY-pr.top; 
+        drag.path.setAttribute('d', pathD(drag.start.x, drag.start.y, x, y)); 
+      };
+      
+      const endDrag=(clientX,clientY)=>{
+        if(!drag) return; 
+        const hit=hitRight(clientX,clientY); 
+        highlightTargets(false);
+        
+        if(hit){
+          svg.removeChild(drag.path);
+          const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+          p.setAttribute('class','wire'); 
+          p.setAttribute('stroke', mapping[idx].color);
+          const b=getCenter(hit);
+          p.setAttribute('d', pathD(drag.start.x, drag.start.y, b.x, b.y));
+          svg.appendChild(p);
+          
+          // Označ tento kábel ako použitý
+          mapping[idx].used = true;
+          mapping[idx].L.classList.add('used');
+          
+          // Označ cieľový port ako použitý
+          const targetIdx = mapping.findIndex(m => m.R === hit);
+          if(targetIdx !== -1){
+            mapping[targetIdx].R.classList.add('used');
+          }
+          
+          connectedCount++;
+          resEl.innerHTML='<span class=ok>✔ Kábel pripojený (' + connectedCount + '/6)</span>';
+          
+          if(connectedCount === 6){
+            setTimeout(()=> successEl.classList.add('show'), 500);
+          }
+        } else {
+          svg.removeChild(drag.path);
+        }
+        drag=null;
+      };
+      
+      L.addEventListener('mousedown', e=>{ 
+        e.preventDefault(); 
+        startDrag(e.clientX,e.clientY); 
+        window.addEventListener('mousemove', onMove); 
+        window.addEventListener('mouseup', onUp, {once:true}); 
+      });
+      
+      function onMove(e){ moveDrag(e.clientX,e.clientY);} 
+      function onUp(e){ window.removeEventListener('mousemove', onMove); endDrag(e.clientX,e.clientY);} 
+      
+      L.addEventListener('touchstart', e=>{ 
+        const t=e.touches[0]; 
+        startDrag(t.clientX,t.clientY); 
+      },{passive:true});
+      
+      window.addEventListener('touchmove', e=>{ 
+        if(!drag) return; 
+        const t=e.touches[0]; 
+        moveDrag(t.clientX,t.clientY); 
+      },{passive:true});
+      
+      window.addEventListener('touchend', e=>{ 
+        if(!drag) return; 
+        const t=e.changedTouches[0]; 
+        endDrag(t.clientX,t.clientY); 
+      },{passive:true});
+    }
+
+    function hitRight(clientX,clientY){
+      const p=clientX, q=clientY; 
+      for(const m of mapping){ 
+        if(m.R.classList.contains('used')) continue; // Skip použitých portov
+        const r=m.R.getBoundingClientRect(); 
+        if(p>=r.left && p<=r.right && q>=r.top && q<=r.bottom){ 
+          return m.R; 
+        } 
+      } 
+      return null;
+    }
+
+    function highlightTargets(on){ 
+      mapping.forEach(m=> {
+        if(!m.R.classList.contains('used')){
+          m.R.dataset.hot = on ? 1 : 0;
+        }
+      }); 
+    }
+
+    document.getElementById('reset').onclick=()=> setupSockets();
+
+    setupSockets();
+  </script>
+</body>
+</html>

@@ -3,223 +3,252 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Miestnosť 2 – IT Skratky</title>
+<title>Miestnosť 2 – Python Úloha (bubliny fix)</title>
 <style>
+  html, body { height:auto; min-height:100%; overflow-y:auto; }
+
   body {
-    margin: 0; padding: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: url('imageroom2.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: #f0f5ff;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    overflow-y: auto;
+    margin:0; padding:0;
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:url('imageroom2.jpg') no-repeat center center fixed;
+    background-size:cover;
+    color:#f0f5ff;
+    display:flex; justify-content:center; align-items:flex-start;
+    min-height:100vh;
   }
+
   #centerbox {
-    margin: 60px 20px;
-    padding: 0 40px 40px 40px;
-    max-width: 700px;
-    width: 100%;
-    text-align: center;
+    margin:60px 20px 140px;
+    padding:0 40px 40px;
+    max-width:760px; width:100%;
+    text-align:center;
   }
-  h1 {
-    font-size: 2.5rem;
-    letter-spacing: 2px;
-    margin-bottom: 14px;
-    color: #ffffff;
-    text-shadow: 0 0 10px #000000cc;
+
+  h1{font-size:2.4rem;margin-bottom:14px;color:#fff;text-shadow:0 0 10px #0008;}
+  h3{font-size:1.2rem;margin:2px 0 26px;color:#ade8ff;text-shadow:0 0 10px #065a8aaa;}
+
+  pre{
+    background:#0b0b0bdd;
+    padding:22px 5vw;
+    border-radius:12px;
+    color:#81c0ff;
+    font-family:'Fira Mono',monospace;
+    font-size:1.05rem;
+    white-space:pre-wrap;
+    margin-bottom:18px;
+    box-shadow:0 0 16px #1e90ff88 inset;
+    text-align:left;
   }
-  h3 {
-    font-size: 1.3rem;
-    margin-top: 2px;
-    margin-bottom: 28px;
-    color: #ade8ff;
-    text-shadow: 0 0 10px #065a8aaa;
+
+  .slot{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:130px; max-width:160px;
+    min-height:26px; vertical-align:baseline;
+    padding:2px 4px; margin:0 3px 2px;
+    background:#f4e9d7; color:#222;
+    border-radius:6px; border:1px solid #e6d7be;
+    box-shadow:0 2px 0 rgba(0,0,0,.22) inset,0 0 7px rgba(255,244,225,.22);
+    font-size:.9rem;
+    text-align:center;
   }
-  pre {
-    background: #0b0b0bdd;
-    padding: 22px 5vw 22px 5vw;
-    border-radius: 12px;
-    color: #81c0ff;
-    font-family: 'Fira Mono', monospace;
-    font-size: 1.12em;
-    white-space: pre-wrap;
-    margin-bottom: 30px;
-    box-shadow: 0 0 16px #1e90ff88 inset;
-    text-align: left;
+  .slot.filled{outline:2px solid rgba(255,255,255,.22)}
+  .slot.good{box-shadow:0 0 0 2px #27d38f inset}
+  .slot.bad{box-shadow:0 0 0 2px #ff6b81 inset}
+
+  .tray{
+    margin-top:10px;
+    background:#0b1733cc;
+    border:1px solid #3b4e7a88;
+    border-radius:14px;
+    padding:10px;
+    box-shadow:0 8px 24px #09193177 inset,0 6px 18px #09193166;
   }
-  input.codebox {
-    font-family: 'Fira Mono', monospace;
-    font-weight: 600;
-    font-size: 1.12rem;
-    text-align: center;
-    width: 90px;
-    padding: 7px 10px;
-    border-radius: 20px;
-    margin: 0 5px;
-    border: 2px solid transparent;
-    box-shadow: 0 0 9px #84c2ff88 inset;
-    background: #0e0e23;
-    color: #a2c8ff;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  .tray h4{margin:4px 0 10px;font-weight:700;color:#c8ddff;text-shadow:0 0 8px #1e90ff55;}
+  .chips{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
   }
-  input.codebox:focus {
-    outline: none;
-    border-color: #5299ffcc;
-    background-color: #142945;
-    box-shadow: 0 0 17px #5299ffaa inset;
+  .chip{
+    background:#15254f; color:#e9f4ff;
+    border:1px solid rgba(255,255,255,.18);
+    padding:8px 12px;
+    border-radius:12px;
+    white-space:normal;
+    max-width:95%;
+    word-wrap:break-word;
+    text-align:center;
+    box-shadow:0 8px 22px rgba(0,0,0,.45),0 0 10px rgba(183,207,255,.18);
+    cursor:grab; user-select:none;
+    transition:transform .15s ease,opacity .15s ease;
+    font-family:ui-monospace,Consolas,monospace;
+    font-size:.9rem;
   }
-  #result-message.success {
-    color: #59eb92;
-    font-weight: 700;
-    font-size: 1.18rem;
-    margin: 12px 0 8px 0;
-    text-shadow: 0 0 10px #4ace83;
+  .chip:hover{transform:scale(1.05)}
+  .chip:active{cursor:grabbing}
+
+  .btn-row{margin-top:18px;display:flex;justify-content:center;gap:18px;flex-wrap:wrap;}
+  button{
+    padding:12px 38px;font-size:1.1rem;border-radius:26px;
+    background:linear-gradient(135deg,#75aaff,#3f6dd6);
+    border:none;color:#e5e5e5;font-weight:700;
+    box-shadow:0 6px 18px #5c7bd0cc;
+    cursor:pointer;transition:background .3s,box-shadow .3s;
   }
-  #result-message.fail {
-    color: #ff5f5f;
-    font-weight: 700;
-    font-size: 1.18rem;
-    margin: 12px 0 8px 0;
-    text-shadow: 0 0 5px #ff3a3a;
+  button:hover{background:linear-gradient(135deg,#4a75d8,#1751bc);box-shadow:0 10px 32px #1f3ddb88;}
+  a#next-button{
+    display:none;padding:12px 38px;font-size:1.1rem;border-radius:26px;
+    background:linear-gradient(135deg,#ff6b6b,#ff8686);
+    color:#fff;box-shadow:0 8px 24px #e54f4f;text-decoration:none;
   }
-  .btn-row {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-  }
-  button, a#next-button {
-    padding: 14px 44px;
-    font-size: 1.22rem;
-    border-radius: 30px;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-  }
-  button {
-    background: linear-gradient(135deg, #75aaff, #3f6dd6);
-    color: #e5e5e5;
-    box-shadow: 0 6px 18px #5c7bd0cc;
-  }
-  button:hover {
-    background: linear-gradient(135deg, #4a75d8, #1751bc);
-    box-shadow: 0 10px 32px #1f3ddb88;
-  }
-  a#next-button {
-    display: none;
-    background: linear-gradient(135deg, #ff6b6b, #ff8686);
-    color: #fff;
-    box-shadow: 0 8px 24px #e54f4f;
-    text-decoration: none;
-  }
-  a#next-button:hover {
-    background: linear-gradient(135deg, #ff4444, #ff5757);
-    box-shadow: 0 10px 36px #d81717;
-  }
-  #timer {
-    position: fixed;
-    bottom: 20px;
-    right: 40px;
-    background: #142853dd;
-    padding: 14px 38px;
-    border-radius: 22px;
-    color: #c6d8ff;
-    font-size: 1.4rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    box-shadow: 0 8px 20px #09193177;
-    user-select: none;
+  a#next-button:hover{background:linear-gradient(135deg,#ff4444,#ff5757);box-shadow:0 10px 36px #d81717;}
+
+  #result-message.success{color:#59eb92;font-weight:700;font-size:1.14rem;margin:12px 0 8px;letter-spacing:.6px;text-shadow:0 0 10px #4ace83;}
+  #result-message.fail{color:#ff5f5f;font-weight:700;font-size:1.14rem;margin:12px 0 8px;letter-spacing:.6px;text-shadow:0 0 5px #ff3a3a;}
+
+  #timer{
+    position:fixed;bottom:20px;right:40px;
+    background:#142853dd;padding:12px 30px;border-radius:18px;
+    color:#c6d8ff;font-size:1.2rem;font-weight:700;letter-spacing:2px;
+    box-shadow:0 8px 20px #09193177;user-select:none;z-index:10;
   }
 </style>
 </head>
 <body>
   <div id="centerbox">
-    <h1>🧩 Miestnosť 2 – IT Skratky</h1>
-    <h3>Priraď ku skratkám ich plné názvy (dopíš chýbajúce slová)</h3>
-    <pre>
-DNS = <input type="text" id="dns1" class="codebox" placeholder="slovo"> <input type="text" id="dns2" class="codebox" placeholder="slovo"> <input type="text" id="dns3" class="codebox" placeholder="slovo">
-VPN = <input type="text" id="vpn1" class="codebox" placeholder="slovo"> <input type="text" id="vpn2" class="codebox" placeholder="slovo"> <input type="text" id="vpn3" class="codebox" placeholder="slovo">
-SSH = <input type="text" id="ssh1" class="codebox" placeholder="slovo"> <input type="text" id="ssh2" class="codebox" placeholder="slovo">
-WWW = <input type="text" id="www1" class="codebox" placeholder="slovo"> <input type="text" id="www2" class="codebox" placeholder="slovo"> <input type="text" id="www3" class="codebox" placeholder="slovo">
-TCP = <input type="text" id="tcp1" class="codebox" placeholder="slovo"> <input type="text" id="tcp2" class="codebox" placeholder="slovo"> <input type="text" id="tcp3" class="codebox" placeholder="slovo">
-UDP = <input type="text" id="udp1" class="codebox" placeholder="slovo"> <input type="text" id="udp2" class="codebox" placeholder="slovo"> <input type="text" id="udp3" class="codebox" placeholder="slovo">
-    </pre>
-    <div id="result-message"></div>
+    <h1>🛰️ Miestnosť 2 – Python Úloha</h1>
+    <h3>Potiahni správne bubliny do prázdnych miest v kóde (teraz sa zmestia 😉).</h3>
+
+<pre>
+# 🚀 Simulátor letu – doplň chýbajúce časti
+<span class="slot" data-slot="s1"></span>   # modul na čakanie
+import random
+
+def simulacia(meno, kroky):
+    palivo = 100
+    rychlost = 1.0
+    pozicia = 0
+    print(f"🚀 Loď {{meno}} štartuje...")
+    time.sleep(1)
+
+    for krok in range(1, kroky + 1):
+        if palivo <= 0:
+            print(<span class="slot" data-slot="s2"></span>)  # hláška pri nedostatku paliva
+            break
+
+        pozicia += rychlost
+        palivo -= random.randint(5, 15)
+        <span class="slot" data-slot="s3"></span>
+        if udalost == "malý meteor":
+            rychlost -= 0.2
+        <span class="slot" data-slot="s4"></span>
+            rychlost -= 0.5
+        else:
+            <span class="slot" data-slot="s5"></span>
+
+        if rychlost &lt; 0.5:
+            rychlost = 0.5
+
+    return pozicia
+</pre>
+
+    <div class="tray">
+      <h4>🧩 Bubliny:</h4>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div id="result-message" aria-live="polite"></div>
+
     <div class="btn-row">
       <button id="check-answer">Skontrolovať odpoveď</button>
-      <a href="room3.html" id="next-button">Ďalej</a>
+      <button id="reset-board">Reset</button>
+      <a href="room3/room3.html" id="next-button">Ďalej</a>
     </div>
   </div>
 
   <div id="timer">30:00</div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const correct = {
-        dns: ["Domain", "Name", "System"],
-        vpn: ["Virtual", "Private", "Network"],
-        ssh: ["Secure", "Shell"],
-        www: ["World", "Wide", "Web"],
-        tcp: ["Transmission", "Control", "Protocol"],
-        udp: ["User", "Datagram", "Protocol"]
-      };
+<script>
+const EXPECT = {
+  s1: 'import time',
+  s2: '"\\n❌ Palivo došlo! Loď je v núdzovom režime."',
+  s3: 'udalost = random.choice(["nič sa nedeje","malý meteor","ionová búrka","nájdené palivo","signál z planéty"])',
+  s4: 'elif udalost == "ionová búrka":',
+  s5: 'print("🌌 Pokojný let vesmírom...")'
+};
+const TOKENS = Object.values(EXPECT);
 
-      let timeLeft = 30 * 60;
-      const timerEl = document.getElementById('timer');
-      const checkBtn = document.getElementById('check-answer');
-      const nextBtn = document.getElementById('next-button');
+/* timer */
+(function(){
+  let timeLeft=30*60;
+  const t=document.getElementById('timer');
+  const s=localStorage.getItem('escape_timer');
+  if(s&&!isNaN(parseInt(s))) timeLeft=parseInt(s);
+  setInterval(()=>{
+    const m=Math.floor(timeLeft/60),sec=timeLeft%60;
+    t.textContent=`${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+    timeLeft=Math.max(0,timeLeft-1);
+    localStorage.setItem('escape_timer',timeLeft);
+  },1000);
+})();
 
-      const storedTime = localStorage.getItem('escape_timer');
-      if (storedTime !== null) timeLeft = parseInt(storedTime, 10);
+/* chips render */
+const chipsBox=document.getElementById('chips');
+function makeChip(txt){
+  const ch=document.createElement('div');
+  ch.className='chip'; ch.textContent=txt; ch.draggable=true; ch.dataset.val=txt;
+  ch.addEventListener('dragstart',e=>{e.currentTarget.style.opacity='0.8';e.dataTransfer.setData('text/plain',txt);window._dragSrc=e.currentTarget;});
+  ch.addEventListener('dragend',e=>{e.currentTarget.style.opacity='1';window._dragSrc=null;});
+  return ch;
+}
+function renderChips(){chipsBox.innerHTML='';TOKENS.forEach(t=>chipsBox.appendChild(makeChip(t)));}
+renderChips();
 
-      // TIMER
-      setInterval(() => {
-        const m = Math.floor(timeLeft / 60);
-        const s = timeLeft % 60;
-        timerEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        timeLeft--;
-        if (timeLeft < 0) timeLeft = 0;
-        localStorage.setItem('escape_timer', timeLeft);
-      }, 1000);
+/* drag slots */
+const slots=Array.from(document.querySelectorAll('.slot'));
+function setStatus(txt,kind){
+  const el=document.getElementById('result-message');
+  el.textContent=txt; el.className=kind||'';
+}
+slots.forEach(s=>{
+  s.addEventListener('dragover',e=>{e.preventDefault();s.classList.add('filled');});
+  s.addEventListener('dragleave',()=>{if(!s.querySelector('.chip'))s.classList.remove('filled');});
+  s.addEventListener('drop',e=>{
+    e.preventDefault();
+    const src=window._dragSrc;if(!src)return;
+    const old=s.querySelector('.chip');
+    if(old)chipsBox.appendChild(old);
+    s.appendChild(src);
+    s.classList.add('filled');s.classList.remove('good','bad');
+    setStatus('Bublina vložená.');
+  });
+});
 
-      // CHECK ANSWERS
-      checkBtn.addEventListener('click', () => {
-        let allCorrect = true;
-
-        function checkGroup(prefix, expected) {
-          for (let i = 0; i < expected.length; i++) {
-            const val = document.getElementById(prefix + (i+1)).value.trim();
-            if (val.toLowerCase() !== expected[i].toLowerCase()) {
-              allCorrect = false;
-            }
-          }
-        }
-
-        checkGroup("dns", correct.dns);
-        checkGroup("vpn", correct.vpn);
-        checkGroup("ssh", correct.ssh);
-        checkGroup("www", correct.www);
-        checkGroup("tcp", correct.tcp);
-        checkGroup("udp", correct.udp);
-
-        const msg = document.getElementById('result-message');
-        if (allCorrect) {
-          msg.textContent = "🎉 Správne! Pokračuj ďalej.";
-          msg.className = "success";
-          checkBtn.style.display = "none";
-          nextBtn.style.display = "inline-block";
-          nextBtn.focus();
-        } else {
-          msg.textContent = "❌ Niečo nesedí, skús znova.";
-          msg.className = "fail";
-        }
-      });
-    });
-  </script>
+/* check + reset */
+const checkBtn=document.getElementById('check-answer');
+const resetBtn=document.getElementById('reset-board');
+const nextBtn=document.getElementById('next-button');
+checkBtn.onclick=()=>{
+  let ok=true;
+  slots.forEach(s=>{
+    const need=EXPECT[s.dataset.slot];
+    const got=s.querySelector('.chip')?.dataset.val||'';
+    if(got===need){s.classList.add('good');s.classList.remove('bad');}
+    else{s.classList.add('bad');s.classList.remove('good');ok=false;}
+  });
+  if(ok){setStatus('Správne! Môžeš pokračovať ďalej.','success');checkBtn.style.display='none';nextBtn.style.display='inline-block';}
+  else setStatus('Niektorý slot nesedí. Skontroluj červené miesta.','fail');
+};
+resetBtn.onclick=()=>{
+  slots.forEach(s=>{
+    const c=s.querySelector('.chip');
+    s.classList.remove('filled','good','bad');
+    if(c)chipsBox.appendChild(c);
+  });
+  setStatus('');
+  checkBtn.style.display='inline-block';
+  nextBtn.style.display='none';
+};
+</script>
 </body>
 </html>
+
+
